@@ -20,6 +20,9 @@ dist-ssr
 # Local agent/assistant tooling config — not part of the app
 .claude
 .agents
+
+# Local Supabase CLI state (per-machine link/session cache, not project config)
+supabase/.temp
 .DS_Store
 *.suo
 *.ntvs*
