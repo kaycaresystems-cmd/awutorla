@@ -1,32 +1,68 @@
-# React + TypeScript + Vite
+# Maison L'Atelier
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Bespoke Ghanaian tailoring workshop management system — React 19 + TypeScript +
+Vite + Tailwind, backed by Supabase (Postgres, Auth, Edge Functions).
 
-Currently, two official plugins are available:
+## Local development
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```bash
+npm install
+cp .env.example .env.local   # fill in your Supabase project URL + anon key
+npm run dev
+npm run test                 # logic test suites (hubtel, whatsapp, workshop, intake, payments, schema)
+npm run lint
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Accounts
+
+There is no self-service signup.
+
+- **Clients** get an account only via the Quick Intake walk-in flow (a tailor/admin
+  registers them in person; they receive an SMS access code and sign in via the
+  "Client Code" tab).
+- **Staff** (tailor/admin) accounts are created by an existing admin from the Team
+  Roles panel, which shows a one-time temporary password to hand off directly.
+- The very first admin has to be bootstrapped manually — see
+  [supabase/functions/create-staff-account/index.ts](supabase/functions/create-staff-account/index.ts)
+  for why (it requires an existing admin to call it). Create a user in the Supabase
+  dashboard (Authentication -> Add user), then set that user's `role` to `admin` in
+  the `profiles` table.
+
+## Deployment
+
+**Frontend (Vercel):** connected to this GitHub repo — every push to `main` deploys
+automatically. Framework preset: Vite. Build command: `npm run build`. Output
+directory: `dist`. Required project environment variables: `VITE_SUPABASE_URL`,
+`VITE_SUPABASE_ANON_KEY` (Supabase dashboard -> Project Settings -> API).
+
+**Backend (Supabase):** [.github/workflows/supabase-deploy.yml](.github/workflows/supabase-deploy.yml)
+pushes the DB migration and deploys all 4 edge functions on every push to `main`
+that touches `supabase/`. Requires these GitHub repo secrets (Settings -> Secrets
+and variables -> Actions):
+
+| Secret | Where to find it |
+|---|---|
+| `SUPABASE_ACCESS_TOKEN` | supabase.com/dashboard/account/tokens |
+| `SUPABASE_PROJECT_ID` | Project Settings -> General -> Reference ID |
+| `SUPABASE_DB_PASSWORD` | the DB password set when the project was created |
+
+Hubtel SMS credentials are **not** part of that workflow — they're Supabase project
+secrets (edge function runtime env), set once and independently of app deploys:
+
+```bash
+supabase secrets set HUBTEL_CLIENT_ID=... HUBTEL_CLIENT_SECRET=... HUBTEL_SENDER_ID=...
+```
+
+## Architecture notes
+
+- `supabase/migrations/01_schema.sql` — profiles, orders, client_measurements,
+  order_tasks tables, RLS policies, and the `handle_new_user` trigger that creates
+  a `profiles` row (role defaulted to `client`) whenever an `auth.users` row is
+  created.
+- `supabase/functions/` — four edge functions, all using the service-role key
+  server-side: `create-walkin-client`, `create-staff-account` (both verify the
+  caller's role before acting), `track-order` and `resend-access-code` (both
+  `--no-verify-jwt`, called by anonymous visitors, and do their own scoped
+  authorization inside instead).
+- `src/lib/auth.tsx` — the auth context plus the client-side wrappers around the
+  three account-related edge functions above.
