@@ -9,11 +9,12 @@ import {
   Ruler,
   PackageOpen,
 } from 'lucide-react';
-import type { BespokeJobOrder, WorkshopStage } from '../../types/workshop.types';
+import type { BespokeJobOrder, WorkshopStage, MeasurementParameter } from '../../types/workshop.types';
 import { FabricStatusBadge } from '../ui/FabricStatusBadge';
 import type { FabricStatus } from '../ui/FabricStatusBadge';
 import { fetchAllOrders, subscribeToOrderChanges } from '../../lib/orders';
 import { getAllOfflineJobCards, saveOfflineJobCard, isOnline } from '../../lib/offlineStore';
+import { fetchMeasurementParameters } from '../../lib/measurementParameters';
 import { useAuth } from '../../lib/auth';
 
 interface ClientOrdersDashboardProps {
@@ -44,6 +45,19 @@ export const ClientOrdersDashboard: React.FC<ClientOrdersDashboardProps> = ({
   const [orders, setOrders] = useState<BespokeJobOrder[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [syncError, setSyncError] = useState<string | null>(null);
+  const [measurementParameters, setMeasurementParameters] = useState<MeasurementParameter[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchMeasurementParameters()
+      .then((params) => {
+        if (isMounted) setMeasurementParameters(params);
+      })
+      .catch((err) => console.error('[ClientOrdersDashboard] Failed to load measurement parameters:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Loads this client's own orders (RLS already scopes fetchAllOrders() to "own orders"
   // for a client account, same query the Workshop board uses for staff). The offline
@@ -143,32 +157,19 @@ export const ClientOrdersDashboard: React.FC<ClientOrdersDashboardProps> = ({
               </span>
             </div>
 
-            {measurements ? (
+            {measurements && Object.keys(measurements.values).length > 0 ? (
               <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 text-sm">
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Bust</div>
-                  <div className="text-gray-900 font-semibold">{measurements.bust} {measurements.unit}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Waist</div>
-                  <div className="text-gray-900 font-semibold">{measurements.waist} {measurements.unit}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Hips</div>
-                  <div className="text-gray-900 font-semibold">{measurements.hips} {measurements.unit}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Shoulder</div>
-                  <div className="text-gray-900 font-semibold">{measurements.shoulder} {measurements.unit}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Sleeve</div>
-                  <div className="text-gray-900 font-semibold">{measurements.sleeveLength} {measurements.unit}</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-xs text-gray-500">Neck-Waist</div>
-                  <div className="text-gray-900 font-semibold">{measurements.neckToWaist} {measurements.unit}</div>
-                </div>
+                {(measurementParameters.length > 0
+                  ? measurementParameters
+                  : Object.keys(measurements.values).map((key) => ({ key, label: key.replace(/_/g, ' ') }))
+                ).map((p) => (
+                  <div key={p.key} className="text-center">
+                    <div className="text-xs text-gray-500 capitalize">{p.label}</div>
+                    <div className="text-gray-900 font-semibold">
+                      {measurements.values[p.key] ?? '—'} {measurements.unit}
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <p className="text-sm text-gray-500">

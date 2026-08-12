@@ -15,12 +15,13 @@ import {
   Clock,
   Receipt,
 } from 'lucide-react';
-import type { BespokeJobOrder, WorkshopStage, OrderTaskItem, TaskStatus } from '../../types/workshop.types';
+import type { BespokeJobOrder, WorkshopStage, OrderTaskItem, TaskStatus, MeasurementParameter } from '../../types/workshop.types';
 import { MeasurementSilhouette } from './MeasurementSilhouette';
 import { formatWhatsAppStageMessage, openWhatsAppChat } from '../../services/whatsapp';
 import { RecordPaymentModal } from './RecordPaymentModal';
 import { supabase } from '../../lib/supabase';
 import { saveOfflineJobCard } from '../../lib/offlineStore';
+import { fetchMeasurementParameters } from '../../lib/measurementParameters';
 import { useAuth } from '../../lib/auth';
 import { Modal } from '../ui/Modal';
 
@@ -64,6 +65,19 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
   } | null>(null);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskTailor, setNewTaskTailor] = useState('Master Kwame Mensah');
+  const [measurementParameters, setMeasurementParameters] = useState<MeasurementParameter[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchMeasurementParameters()
+      .then((params) => {
+        if (isMounted) setMeasurementParameters(params);
+      })
+      .catch((err) => console.error('[DigitalJobCard] Failed to load measurement parameters:', err));
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Reset transient view state each time the card opens for a (possibly different) order,
   // since the parent keeps this component mounted and only toggles `isOpen`.
@@ -329,7 +343,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
           {/* TAB: Measurements */}
           {activeTab === 'measurements' && (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-              <MeasurementSilhouette measurements={order.measurements} />
+              <MeasurementSilhouette measurements={order.measurements} parameters={measurementParameters} />
 
               <div className="p-4 bg-accent-50 border border-accent-100 rounded-xl text-sm">
                 <div className="flex items-center gap-1.5 text-accent-700 font-semibold mb-1">

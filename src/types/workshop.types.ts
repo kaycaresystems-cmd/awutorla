@@ -20,18 +20,24 @@ export interface OrderTaskItem {
   completedAt?: string;
 }
 
+export interface MeasurementParameter {
+  id: string;
+  key: string;
+  label: string;
+  displayOrder: number;
+  isActive: boolean;
+}
+
 export interface ClientBodyMeasurements {
   id?: string;
   clientId: string;
   clientName: string;
   clientPhone: string;
   unit: 'in' | 'cm';
-  bust: number;
-  waist: number;
-  hips: number;
-  neckToWaist: number;
-  shoulder: number;
-  sleeveLength: number;
+  // Keyed by the measurement_parameters.key of each active admin-defined
+  // parameter — replaces the old fixed bust/waist/hips/... fields so admins
+  // can add parameters without a schema change.
+  values: Record<string, number>;
   notes?: string;
   updatedAt: string;
 }

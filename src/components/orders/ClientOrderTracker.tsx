@@ -10,7 +10,7 @@ import {
 import type { BespokeJobOrder } from '../../types/workshop.types';
 import { FabricStatusBadge } from '../ui/FabricStatusBadge';
 import type { FabricStatus } from '../ui/FabricStatusBadge';
-import { SEED_WORKSHOP_ORDERS } from '../../pages/Workshop';
+import { SEED_WORKSHOP_ORDERS } from '../../lib/seedOrders';
 import { getAllOfflineJobCards, saveOfflineJobCard, isOnline } from '../../lib/offlineStore';
 import { fetchAllOrders, trackOrderAnonymously } from '../../lib/orders';
 import { useAuth } from '../../lib/auth';

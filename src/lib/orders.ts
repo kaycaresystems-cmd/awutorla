@@ -16,12 +16,7 @@ function emptyMeasurements(
     clientName,
     clientPhone,
     unit: 'in',
-    bust: 0,
-    waist: 0,
-    hips: 0,
-    neckToWaist: 0,
-    shoulder: 0,
-    sleeveLength: 0,
+    values: {},
     updatedAt: new Date().toISOString(),
   };
 }
@@ -89,14 +84,21 @@ export async function fetchAllOrders(): Promise<BespokeJobOrder[]> {
   const orderIds = orders.map((o) => o.id);
   const clientIds = [...new Set(orders.map((o) => o.client_id).filter(Boolean))];
 
-  const [{ data: taskRows, error: tasksError }, measurementsResult] = await Promise.all([
+  const [{ data: taskRows, error: tasksError }, headerResult, valuesResult] = await Promise.all([
     supabase.from('order_tasks').select('*').in('order_id', orderIds),
     clientIds.length > 0
       ? supabase.from('client_measurements').select('*').in('client_id', clientIds)
       : Promise.resolve({ data: [], error: null }),
+    clientIds.length > 0
+      ? supabase
+          .from('client_measurement_values')
+          .select('client_id, value, measurement_parameters(key)')
+          .in('client_id', clientIds)
+      : Promise.resolve({ data: [], error: null }),
   ]);
   if (tasksError) throw tasksError;
-  if (measurementsResult.error) throw measurementsResult.error;
+  if (headerResult.error) throw headerResult.error;
+  if (valuesResult.error) throw valuesResult.error;
 
   const tasksByOrder = new Map<string, OrderTaskItem[]>();
   for (const row of (taskRows || []) as any[]) {
@@ -107,22 +109,27 @@ export async function fetchAllOrders(): Promise<BespokeJobOrder[]> {
   }
 
   const measurementsByClient = new Map<string, ClientBodyMeasurements>();
-  for (const row of (measurementsResult.data || []) as any[]) {
+  for (const row of (headerResult.data || []) as any[]) {
     measurementsByClient.set(row.client_id, {
       id: row.id,
       clientId: row.client_id,
       clientName: '',
       clientPhone: '',
       unit: row.unit,
-      bust: Number(row.bust) || 0,
-      waist: Number(row.waist) || 0,
-      hips: Number(row.hips) || 0,
-      neckToWaist: Number(row.neck_to_waist) || 0,
-      shoulder: Number(row.shoulder) || 0,
-      sleeveLength: Number(row.sleeve_length) || 0,
+      values: {},
       notes: row.notes ?? undefined,
       updatedAt: row.updated_at,
     });
+  }
+  for (const row of (valuesResult.data || []) as any[]) {
+    const key = row.measurement_parameters?.key;
+    if (!key) continue;
+    let entry = measurementsByClient.get(row.client_id);
+    if (!entry) {
+      entry = emptyMeasurements(row.client_id, '', '');
+      measurementsByClient.set(row.client_id, entry);
+    }
+    entry.values[key] = Number(row.value);
   }
 
   return orders.map((row) => {

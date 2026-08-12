@@ -32,28 +32,23 @@ export async function runAllIntakeTests() {
   // --------------------------------------------------------------------------
   console.log('--- 1. Rapid 6-Point Measurement Intake Passport ---');
 
-  await test('Builds valid client body measurement passport with all 6 points and unit', () => {
+  await test('Builds valid client body measurement passport with all points and unit', () => {
     const measurements: ClientBodyMeasurements = {
       clientId: 'cli-992',
       clientName: 'Abena Poku',
       clientPhone: '233244123456',
       unit: 'in',
-      bust: 36.0,
-      waist: 28.0,
-      hips: 39.0,
-      shoulder: 15.5,
-      sleeveLength: 24.0,
-      neckToWaist: 16.0,
+      values: { bust: 36.0, waist: 28.0, hips: 39.0, shoulder: 15.5, sleeve_length: 24.0, neck_to_waist: 16.0 },
       notes: 'Allow 1.5 in seam allowance.',
       updatedAt: new Date().toISOString(),
     };
 
-    assertEquals(measurements.bust, 36.0, 'Bust spec must match');
-    assertEquals(measurements.waist, 28.0, 'Waist spec must match');
-    assertEquals(measurements.hips, 39.0, 'Hips spec must match');
-    assertEquals(measurements.shoulder, 15.5, 'Shoulder spec must match');
-    assertEquals(measurements.sleeveLength, 24.0, 'Sleeve length must match');
-    assertEquals(measurements.neckToWaist, 16.0, 'Neck-to-waist must match');
+    assertEquals(measurements.values.bust, 36.0, 'Bust spec must match');
+    assertEquals(measurements.values.waist, 28.0, 'Waist spec must match');
+    assertEquals(measurements.values.hips, 39.0, 'Hips spec must match');
+    assertEquals(measurements.values.shoulder, 15.5, 'Shoulder spec must match');
+    assertEquals(measurements.values.sleeve_length, 24.0, 'Sleeve length must match');
+    assertEquals(measurements.values.neck_to_waist, 16.0, 'Neck-to-waist must match');
     assertEquals(measurements.unit, 'in', 'Unit must match');
   });
 
@@ -84,12 +79,7 @@ export async function runAllIntakeTests() {
         clientName: 'Abena Poku',
         clientPhone: '233244123456',
         unit: 'in',
-        bust: 36.0,
-        waist: 28.0,
-        hips: 39.0,
-        shoulder: 15.5,
-        sleeveLength: 24.0,
-        neckToWaist: 16.0,
+        values: { bust: 36.0, waist: 28.0, hips: 39.0, shoulder: 15.5, sleeve_length: 24.0, neck_to_waist: 16.0 },
         updatedAt: new Date().toISOString(),
       },
       depositPaid,

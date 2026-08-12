@@ -1,5 +1,5 @@
 import type { OrderTaskItem, TaskStatus, ClientBodyMeasurements } from '../../../types/workshop.types';
-import { SEED_WORKSHOP_ORDERS } from '../../../pages/Workshop';
+import { SEED_WORKSHOP_ORDERS } from './fixtures';
 
 function assert(condition: boolean, message: string) {
   if (!condition) {
@@ -76,37 +76,27 @@ export async function runAllSchemaTests() {
   // --------------------------------------------------------------------------
   console.log('\n--- 2. Measurement Vault Unit Conversion & Passport ---');
 
-  await test('Correctly converts imperial inches to metric centimeters across all 6 points', () => {
+  await test('Correctly converts imperial inches to metric centimeters across every parameter', () => {
     const profileInches: ClientBodyMeasurements = {
       clientId: 'cli-884',
       clientName: 'Dr. Esi Sutherland',
       clientPhone: '0244123456',
       unit: 'in',
-      bust: 34.5,
-      waist: 26.8,
-      hips: 38.2,
-      shoulder: 15.5,
-      sleeveLength: 24.0,
-      neckToWaist: 16.0,
+      values: { bust: 34.5, waist: 26.8, hips: 38.2, shoulder: 15.5, sleeve_length: 24.0, neck_to_waist: 16.0 },
       notes: 'Bespoke fit',
       updatedAt: new Date().toISOString(),
     };
 
     const factor = 2.54;
-    const profileCm: ClientBodyMeasurements = {
-      ...profileInches,
-      unit: 'cm',
-      bust: parseFloat((profileInches.bust * factor).toFixed(1)),
-      waist: parseFloat((profileInches.waist * factor).toFixed(1)),
-      hips: parseFloat((profileInches.hips * factor).toFixed(1)),
-      shoulder: parseFloat((profileInches.shoulder * factor).toFixed(1)),
-      sleeveLength: parseFloat((profileInches.sleeveLength * factor).toFixed(1)),
-      neckToWaist: parseFloat((profileInches.neckToWaist * factor).toFixed(1)),
-    };
+    const convertedValues: Record<string, number> = {};
+    for (const [key, val] of Object.entries(profileInches.values)) {
+      convertedValues[key] = parseFloat((val * factor).toFixed(1));
+    }
+    const profileCm: ClientBodyMeasurements = { ...profileInches, unit: 'cm', values: convertedValues };
 
-    assertEquals(profileCm.bust, 87.6, '34.5 in should convert to 87.6 cm');
-    assertEquals(profileCm.waist, 68.1, '26.8 in should convert to 68.1 cm');
-    assertEquals(profileCm.hips, 97.0, '38.2 in should convert to 97.0 cm');
+    assertEquals(profileCm.values.bust, 87.6, '34.5 in should convert to 87.6 cm');
+    assertEquals(profileCm.values.waist, 68.1, '26.8 in should convert to 68.1 cm');
+    assertEquals(profileCm.values.hips, 97.0, '38.2 in should convert to 97.0 cm');
   });
 
   // --------------------------------------------------------------------------

@@ -7,11 +7,12 @@ import {
   AlertCircle,
   MessageCircle,
 } from 'lucide-react';
-import type { BespokeJobOrder, ClientBodyMeasurements } from '../../types/workshop.types';
+import type { BespokeJobOrder, ClientBodyMeasurements, MeasurementParameter } from '../../types/workshop.types';
 import { sanitizeGhanaianPhoneNumber, detectGhanaNetwork } from '../../services/hubtel';
 import { formatWhatsAppWelcomeMessage, openWhatsAppChat } from '../../services/whatsapp';
 import { supabase } from '../../lib/supabase';
 import { saveOfflineJobCard, cacheClientMeasurements } from '../../lib/offlineStore';
+import { fetchMeasurementParameters } from '../../lib/measurementParameters';
 import { createWalkInClient, useAuth } from '../../lib/auth';
 import { Modal } from '../ui/Modal';
 
@@ -47,12 +48,8 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
 
   // Measurements State
   const [unit, setUnit] = useState<'in' | 'cm'>('in');
-  const [bust, setBust] = useState<number>(36.0);
-  const [waist, setWaist] = useState<number>(28.0);
-  const [hips, setHips] = useState<number>(39.0);
-  const [shoulder, setShoulder] = useState<number>(15.5);
-  const [sleeveLength, setSleeveLength] = useState<number>(24.0);
-  const [neckToWaist, setNeckToWaist] = useState<number>(16.0);
+  const [measurementParameters, setMeasurementParameters] = useState<MeasurementParameter[]>([]);
+  const [measurementValues, setMeasurementValues] = useState<Record<string, number>>({});
 
   // Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -82,15 +79,14 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
       setAssignedTailor('Master Kwame Mensah');
       setDueDate('AUG 24, 2026');
       setUnit('in');
-      setBust(36.0);
-      setWaist(28.0);
-      setHips(39.0);
-      setShoulder(15.5);
-      setSleeveLength(24.0);
-      setNeckToWaist(16.0);
+      setMeasurementValues({});
       setIsSubmitting(false);
       setErrorMessage(null);
       setSuccessInfo(null);
+
+      fetchMeasurementParameters()
+        .then(setMeasurementParameters)
+        .catch((err) => console.error('[QuickIntakeModal] Failed to load measurement parameters:', err));
     }
   }, [isOpen]);
 
@@ -144,18 +140,13 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
 
       const clientId = realClientId || `client-${Date.now().toString().slice(-6)}`;
 
-      // 1. Build 6-Point Tailoring Measurement Passport
+      // 1. Build Tailoring Measurement Passport
       const measurementsPayload: ClientBodyMeasurements = {
         clientId,
         clientName: clientName.trim(),
         clientPhone: sanitizedPhone,
         unit,
-        bust: Number(bust),
-        waist: Number(waist),
-        hips: Number(hips),
-        shoulder: Number(shoulder),
-        sleeveLength: Number(sleeveLength),
-        neckToWaist: Number(neckToWaist),
+        values: measurementValues,
         updatedAt: new Date().toISOString(),
       };
 
@@ -251,21 +242,27 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
       // 5. Commit measurements to Supabase, now that we have a real client id to attach them to
       if (realClientId) {
         try {
-          const { error: measurementsError } = await (supabase.from('client_measurements') as any).upsert(
-            {
-              client_id: realClientId,
-              unit,
-              bust,
-              waist,
-              hips,
-              shoulder,
-              sleeve_length: sleeveLength,
-              neck_to_waist: neckToWaist,
-              updated_at: measurementsPayload.updatedAt,
-            },
+          const { error: headerError } = await (supabase.from('client_measurements') as any).upsert(
+            { client_id: realClientId, unit, updated_at: measurementsPayload.updatedAt },
             { onConflict: 'client_id' }
           );
-          if (measurementsError) console.error('[QuickIntakeModal] Measurements upsert failed:', measurementsError);
+          if (headerError) console.error('[QuickIntakeModal] Measurements header upsert failed:', headerError);
+
+          const valueRows = measurementParameters
+            .filter((p) => measurementValues[p.key] !== undefined && !Number.isNaN(measurementValues[p.key]))
+            .map((p) => ({
+              client_id: realClientId,
+              parameter_id: p.id,
+              value: measurementValues[p.key],
+              updated_at: measurementsPayload.updatedAt,
+            }));
+          if (valueRows.length > 0) {
+            const { error: valuesError } = await (supabase.from('client_measurement_values') as any).upsert(
+              valueRows,
+              { onConflict: 'client_id,parameter_id' }
+            );
+            if (valuesError) console.error('[QuickIntakeModal] Measurement values upsert failed:', valuesError);
+          }
         } catch (err) {
           console.error('[QuickIntakeModal] Measurements upsert threw:', err);
         }
@@ -394,10 +391,10 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
               </div>
             </div>
 
-            {/* SECTION 2: 6-POINT MEASUREMENT PASSPORT */}
+            {/* SECTION 2: TAILORING PASSPORT */}
             <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-semibold text-accent-600">6-Point Tailoring Passport</span>
+                <span className="text-xs font-semibold text-accent-600">Tailoring Passport</span>
                 <div className="flex bg-gray-100 rounded-lg p-0.5 text-xs">
                   <button
                     type="button"
@@ -417,77 +414,22 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Bust ({unit})</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={bust}
-                    onChange={(e) => setBust(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Waist ({unit})</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={waist}
-                    onChange={(e) => setWaist(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Hips ({unit})</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={hips}
-                    onChange={(e) => setHips(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Shoulder ({unit})</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={shoulder}
-                    onChange={(e) => setShoulder(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Sleeve ({unit})</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={sleeveLength}
-                    onChange={(e) => setSleeveLength(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-[11px] font-medium text-gray-600 mb-1">Neck-Waist</label>
-                  <input
-                    type="number"
-                    step="0.1"
-                    required
-                    value={neckToWaist}
-                    onChange={(e) => setNeckToWaist(parseFloat(e.target.value) || 0)}
-                    className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
-                  />
-                </div>
+                {measurementParameters.map((p) => (
+                  <div key={p.id}>
+                    <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                      {p.label} ({unit})
+                    </label>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={measurementValues[p.key] ?? ''}
+                      onChange={(e) =>
+                        setMeasurementValues((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) || 0 }))
+                      }
+                      className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+                    />
+                  </div>
+                ))}
               </div>
             </div>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ShieldCheck,
   Save,
@@ -6,93 +6,144 @@ import {
   Lock,
   Loader2,
 } from 'lucide-react';
-import type { ClientBodyMeasurements } from '../../types/workshop.types';
+import type { MeasurementParameter } from '../../types/workshop.types';
 import { supabase } from '../../lib/supabase';
+import { fetchMeasurementParameters } from '../../lib/measurementParameters';
 import { cacheClientMeasurements } from '../../lib/offlineStore';
 import { useAuth } from '../../lib/auth';
 
 interface MeasurementVaultSyncProps {
-  measurements: ClientBodyMeasurements;
-  onMeasurementsChange: (updated: ClientBodyMeasurements) => void;
+  // Defaults to the signed-in user's own id ("My Profile"). Staff pass a
+  // different client's id when editing that client's measurements.
+  targetClientId?: string;
 }
 
-export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
-  measurements,
-  onMeasurementsChange,
-}) => {
+export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targetClientId }) => {
   const { user } = useAuth();
+  const clientId = targetClientId || user?.id || '';
+
+  const [parameters, setParameters] = useState<MeasurementParameter[]>([]);
+  const [unit, setUnit] = useState<'in' | 'cm'>('in');
+  const [values, setValues] = useState<Record<string, number>>({});
+  const [notes, setNotes] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncSuccess, setSyncSuccess] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [notes, setNotes] = useState<string>(measurements.notes || 'Prefers relaxed fit on waist for formal dinners.');
 
-  const handleUnitToggle = (unit: 'in' | 'cm') => {
-    if (measurements.unit === unit) return;
+  useEffect(() => {
+    let isMounted = true;
+    if (!clientId) {
+      setIsLoading(false);
+      return;
+    }
 
-    const factor = unit === 'cm' ? 2.54 : 1 / 2.54;
-    const round = (val: number) => parseFloat((val * factor).toFixed(1));
+    async function load() {
+      setIsLoading(true);
+      try {
+        const [params, headerResult, valuesResult] = await Promise.all([
+          fetchMeasurementParameters(),
+          supabase.from('client_measurements').select('*').eq('client_id', clientId).maybeSingle(),
+          supabase
+            .from('client_measurement_values')
+            .select('value, measurement_parameters(key)')
+            .eq('client_id', clientId),
+        ]);
+        if (!isMounted) return;
 
-    const updated: ClientBodyMeasurements = {
-      ...measurements,
-      unit,
-      bust: round(measurements.bust),
-      waist: round(measurements.waist),
-      hips: round(measurements.hips),
-      shoulder: round(measurements.shoulder),
-      sleeveLength: round(measurements.sleeveLength),
-      neckToWaist: round(measurements.neckToWaist),
-      updatedAt: new Date().toISOString(),
+        setParameters(params);
+        const header = headerResult.data as any;
+        setUnit(header?.unit === 'cm' ? 'cm' : 'in');
+        setNotes(header?.notes || '');
+
+        const nextValues: Record<string, number> = {};
+        for (const row of (valuesResult.data || []) as any[]) {
+          const key = row.measurement_parameters?.key;
+          if (key) nextValues[key] = Number(row.value);
+        }
+        setValues(nextValues);
+      } catch (err) {
+        console.error('[MeasurementVaultSync] Failed to load measurements:', err);
+        if (isMounted) setErrorMessage('Could not load measurements from the cloud.');
+      } finally {
+        if (isMounted) setIsLoading(false);
+      }
+    }
+
+    load();
+    return () => {
+      isMounted = false;
     };
+  }, [clientId]);
 
-    onMeasurementsChange(updated);
+  const handleUnitToggle = (nextUnit: 'in' | 'cm') => {
+    if (unit === nextUnit) return;
+    const factor = nextUnit === 'cm' ? 2.54 : 1 / 2.54;
+    const converted: Record<string, number> = {};
+    for (const [key, val] of Object.entries(values)) {
+      converted[key] = parseFloat((val * factor).toFixed(1));
+    }
+    setValues(converted);
+    setUnit(nextUnit);
+  };
+
+  const handleValueChange = (key: string, raw: string) => {
+    const parsed = parseFloat(raw);
+    setValues((prev) => ({ ...prev, [key]: Number.isNaN(parsed) ? 0 : parsed }));
   };
 
   const handleSaveToSupabase = async () => {
+    if (!clientId) return;
     setIsSyncing(true);
     setSyncSuccess(false);
     setErrorMessage(null);
 
-    const payload: ClientBodyMeasurements = {
-      ...measurements,
-      notes,
-      updatedAt: new Date().toISOString(),
-    };
+    const nowIso = new Date().toISOString();
 
-    onMeasurementsChange(payload);
-    cacheClientMeasurements(payload.clientId, payload);
+    try {
+      const { error: headerError } = await (supabase.from('client_measurements') as any).upsert(
+        { client_id: clientId, unit, notes, updated_at: nowIso },
+        { onConflict: 'client_id' }
+      );
+      if (headerError) throw headerError;
 
-    if (user) {
-      try {
-        const { error } = await (supabase.from('client_measurements') as any).upsert(
-          {
-            client_id: user.id,
-            unit: payload.unit,
-            bust: payload.bust,
-            waist: payload.waist,
-            hips: payload.hips,
-            shoulder: payload.shoulder,
-            sleeve_length: payload.sleeveLength,
-            neck_to_waist: payload.neckToWaist,
-            notes: payload.notes,
-            updated_at: payload.updatedAt,
-          },
-          { onConflict: 'client_id' }
-        );
-        if (error) {
-          console.error('[MeasurementVaultSync] Supabase upsert failed:', error);
-          setErrorMessage('Saved locally, but cloud sync failed. It will retry next time you save.');
-        }
-      } catch (err) {
-        console.error('[MeasurementVaultSync] Supabase upsert threw:', err);
-        setErrorMessage('Saved locally, but cloud sync failed. It will retry next time you save.');
+      const rows = parameters
+        .filter((p) => values[p.key] !== undefined && !Number.isNaN(values[p.key]))
+        .map((p) => ({ client_id: clientId, parameter_id: p.id, value: values[p.key], updated_at: nowIso }));
+
+      if (rows.length > 0) {
+        const { error: valuesError } = await (supabase.from('client_measurement_values') as any).upsert(rows, {
+          onConflict: 'client_id,parameter_id',
+        });
+        if (valuesError) throw valuesError;
       }
-    }
 
-    setTimeout(() => {
-      setIsSyncing(false);
+      cacheClientMeasurements(clientId, {
+        clientId,
+        clientName: '',
+        clientPhone: '',
+        unit,
+        values,
+        notes,
+        updatedAt: nowIso,
+      });
       setSyncSuccess(true);
-    }, 400);
+    } catch (err) {
+      console.error('[MeasurementVaultSync] Supabase sync failed:', err);
+      setErrorMessage('Could not sync to the cloud. Please try again.');
+    } finally {
+      setIsSyncing(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl p-8 border border-gray-200 flex justify-center items-center gap-2 text-gray-500 text-sm">
+        <Loader2 size={16} className="animate-spin" />
+        <span>Loading measurements...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl p-6 sm:p-8 border border-gray-200 space-y-6">
@@ -119,7 +170,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
           <button
             onClick={() => handleUnitToggle('in')}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              measurements.unit === 'in' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              unit === 'in' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             Inches
@@ -127,7 +178,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
           <button
             onClick={() => handleUnitToggle('cm')}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              measurements.unit === 'cm' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+              unit === 'cm' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             Metric
@@ -135,39 +186,31 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
         </div>
       </div>
 
-      {/* 6-Point Dimension Matrix */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Bust</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.bust}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
+      {/* Dynamic Measurement Parameter Grid */}
+      {parameters.length === 0 ? (
+        <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg text-sm text-gray-500 text-center">
+          No measurement parameters have been set up yet.
         </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Waist</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.waist}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
+      ) : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {parameters.map((p) => (
+            <div key={p.id} className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
+              <label htmlFor={`measurement-${p.key}`} className="text-[11px] text-gray-500 block mb-1">
+                {p.label}
+              </label>
+              <input
+                id={`measurement-${p.key}`}
+                type="number"
+                step="0.1"
+                value={values[p.key] ?? ''}
+                onChange={(e) => handleValueChange(p.key, e.target.value)}
+                className="w-full bg-white border border-gray-200 rounded-md p-1.5 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+              />
+              <span className="text-[10px] text-gray-400 block mt-0.5">{unit}</span>
+            </div>
+          ))}
         </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Hips</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.hips}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
-        </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Shoulder</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.shoulder}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
-        </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Sleeve</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.sleeveLength}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
-        </div>
-        <div className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
-          <span className="text-[11px] text-gray-500 block">Neck-Waist</span>
-          <span className="text-lg font-semibold text-gray-900">{measurements.neckToWaist}</span>
-          <span className="text-[10px] text-gray-400 block">{measurements.unit}</span>
-        </div>
-      </div>
+      )}
 
       {/* Posture & Fitting Notes */}
       <div className="space-y-2">
@@ -190,7 +233,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
       )}
 
       {/* Sync Error Banner */}
-      {syncSuccess && errorMessage && (
+      {errorMessage && (
         <div className="p-3 bg-accent-50 border border-accent-100 text-gray-900 rounded-lg text-xs flex items-center gap-2">
           <ShieldCheck size={16} className="shrink-0 text-accent-600" />
           <span>{errorMessage}</span>
@@ -206,8 +249,8 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({
 
         <button
           onClick={handleSaveToSupabase}
-          disabled={isSyncing}
-          className="w-full sm:w-auto px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2"
+          disabled={isSyncing || !clientId}
+          className="w-full sm:w-auto px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isSyncing ? (
             <>

@@ -6,7 +6,7 @@ import {
   cacheClientMeasurements,
   getOfflineMeasurements,
 } from '../../../lib/offlineStore';
-import { SEED_WORKSHOP_ORDERS } from '../../../pages/Workshop';
+import { SEED_WORKSHOP_ORDERS } from './fixtures';
 import type { BespokeJobOrder } from '../../../types/workshop.types';
 
 function assert(condition: boolean, message: string) {
@@ -76,12 +76,7 @@ export async function runAllWorkshopTests() {
       clientName: 'Yaa Asantewaa',
       clientPhone: '0244112233',
       unit: 'in',
-      bust: 36,
-      waist: 28,
-      hips: 39,
-      neckToWaist: 16,
-      shoulder: 15.5,
-      sleeveLength: 24,
+      values: { bust: 36, waist: 28, hips: 39, neck_to_waist: 16, shoulder: 15.5, sleeve_length: 24 },
       updatedAt: '2026-08-09T00:00:00Z',
     },
     depositPaid: 1500,
@@ -98,15 +93,15 @@ export async function runAllWorkshopTests() {
     const retrieved = getOfflineJobCard('ORD-TEST-99');
     assert(Boolean(retrieved), 'Should retrieve offline job card');
     assertEquals(retrieved?.clientName, 'Yaa Asantewaa', 'Client name should match');
-    assertEquals(retrieved?.measurements.bust, 36, 'Bust measurement should match');
+    assertEquals(retrieved?.measurements.values.bust, 36, 'Bust measurement should match');
   });
 
   await test('Caches and retrieves client body measurements offline', () => {
     cacheClientMeasurements('cli-99', testOrder.measurements);
     const cached = getOfflineMeasurements('cli-99');
     assert(Boolean(cached), 'Should retrieve cached measurements');
-    assertEquals(cached?.waist, 28, 'Waist measurement should match');
-    assertEquals(cached?.hips, 39, 'Hips measurement should match');
+    assertEquals(cached?.values.waist, 28, 'Waist measurement should match');
+    assertEquals(cached?.values.hips, 39, 'Hips measurement should match');
   });
 
   // --------------------------------------------------------------------------
@@ -121,9 +116,9 @@ export async function runAllWorkshopTests() {
 
     for (const ord of list) {
       assert(Boolean(ord.assignedTailor), `Order ${ord.id} must have assigned tailor`);
-      assert(ord.measurements.bust > 0, `Order ${ord.id} must have valid bust`);
-      assert(ord.measurements.waist > 0, `Order ${ord.id} must have valid waist`);
-      assert(ord.measurements.hips > 0, `Order ${ord.id} must have valid hips`);
+      assert(ord.measurements.values.bust > 0, `Order ${ord.id} must have valid bust`);
+      assert(ord.measurements.values.waist > 0, `Order ${ord.id} must have valid waist`);
+      assert(ord.measurements.values.hips > 0, `Order ${ord.id} must have valid hips`);
       assert(Boolean(ord.dueDate), `Order ${ord.id} must have due date`);
     }
   });
