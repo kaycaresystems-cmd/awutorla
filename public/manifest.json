@@ -1,0 +1,17 @@
+{
+  "short_name": "AtelierWorkshop",
+  "name": "Maison L'Atelier - Tailor Workshop",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#F9F6F0",
+  "theme_color": "#0D0D0D",
+  "display": "standalone",
+  "orientation": "any",
+  "scope": "/"
+}

@@ -1,0 +1,38 @@
+{
+  "name": "awu-torla",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview",
+    "test": "npm run test:hubtel && npm run test:whatsapp && npm run test:workshop && npm run test:intake && npm run test:manual-payment && npm run test:schema",
+    "test:hubtel": "tsx scripts/run-tests.ts",
+    "test:whatsapp": "tsx scripts/run-whatsapp-tests.ts",
+    "test:workshop": "tsx scripts/run-workshop-tests.ts",
+    "test:intake": "tsx scripts/run-intake-tests.ts",
+    "test:manual-payment": "tsx scripts/run-manual-payment-tests.ts",
+    "test:schema": "tsx scripts/run-schema-tests.ts"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.112.2",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  },
+  "devDependencies": {
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.4",
+    "autoprefixer": "^10.5.4",
+    "lucide-react": "^1.30.0",
+    "oxlint": "^1.75.0",
+    "postcss": "^8.5.26",
+    "tailwindcss": "^3.4.19",
+    "tsx": "^4.19.2",
+    "typescript": "~6.0.2",
+    "vite": "^8.2.0"
+  }
+}
