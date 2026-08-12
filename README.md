@@ -35,19 +35,25 @@ automatically. Framework preset: Vite. Build command: `npm run build`. Output
 directory: `dist`. Required project environment variables: `VITE_SUPABASE_URL`,
 `VITE_SUPABASE_ANON_KEY` (Supabase dashboard -> Project Settings -> API).
 
-**Backend (Supabase):** [.github/workflows/supabase-deploy.yml](.github/workflows/supabase-deploy.yml)
-pushes the DB migration and deploys all 4 edge functions on every push to `main`
-that touches `supabase/`. Requires these GitHub repo secrets (Settings -> Secrets
-and variables -> Actions):
+**Backend (Supabase):** set up manually, not via CI. Run
+[supabase/migrations/01_schema.sql](supabase/migrations/01_schema.sql) once in the
+Supabase dashboard's SQL Editor (idempotent — safe to re-run), then deploy the 4
+edge functions with the Supabase CLI:
 
-| Secret | Where to find it |
-|---|---|
-| `SUPABASE_ACCESS_TOKEN` | supabase.com/dashboard/account/tokens |
-| `SUPABASE_PROJECT_ID` | Project Settings -> General -> Reference ID |
-| `SUPABASE_DB_PASSWORD` | the DB password set when the project was created |
+```bash
+supabase login
+supabase link --project-ref <your-project-ref>
+supabase functions deploy create-walkin-client
+supabase functions deploy create-staff-account
+supabase functions deploy track-order --no-verify-jwt
+supabase functions deploy resend-access-code --no-verify-jwt
+```
 
-Hubtel SMS credentials are **not** part of that workflow — they're Supabase project
-secrets (edge function runtime env), set once and independently of app deploys:
+`track-order` and `resend-access-code` need `--no-verify-jwt` — they're called by
+anonymous/logged-out visitors and do their own scoped authorization inside instead
+of Supabase's platform-level JWT check.
+
+Hubtel SMS credentials are set once, independently of the above:
 
 ```bash
 supabase secrets set HUBTEL_CLIENT_ID=... HUBTEL_CLIENT_SECRET=... HUBTEL_SENDER_ID=...
