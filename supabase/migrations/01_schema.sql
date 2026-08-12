@@ -162,7 +162,7 @@ BEGIN
     NEW.updated_at = timezone('utc'::text, now());
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS set_profiles_updated_at ON public.profiles;
 CREATE TRIGGER set_profiles_updated_at
@@ -197,11 +197,11 @@ BEGIN
         COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name', ''),
         NEW.phone,
         COALESCE(NEW.raw_user_meta_data->>'avatar_url', ''),
-        COALESCE((NEW.raw_user_meta_data->>'role')::user_role, 'client'::user_role)
+        COALESCE((NEW.raw_user_meta_data->>'role')::public.user_role, 'client'::public.user_role)
     );
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
@@ -232,7 +232,7 @@ BEGIN
         WHERE id = auth.uid() AND role = 'admin'
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public, pg_temp;
 
 -- Helper function to check if user is tailor
 CREATE OR REPLACE FUNCTION public.is_tailor()
@@ -243,7 +243,7 @@ BEGIN
         WHERE id = auth.uid() AND role IN ('tailor', 'admin')
     );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE SET search_path = public, pg_temp;
 
 -- ------------------------------------------------------------------------------
 -- PROFILES POLICIES
@@ -281,7 +281,7 @@ BEGIN
     END IF;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp;
 
 DROP TRIGGER IF EXISTS prevent_self_role_escalation ON public.profiles;
 CREATE TRIGGER prevent_self_role_escalation
