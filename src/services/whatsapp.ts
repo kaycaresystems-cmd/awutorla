@@ -153,6 +153,27 @@ export function formatWhatsAppFittingReminder(
 }
 
 /**
+ * Invoice Link Template (Strictly emoji-free)
+ * Carries a link rather than an attachment — wa.me deep links can only
+ * pre-fill text, not attach a file, so the invoice PDF is uploaded to
+ * storage first and shared here as a URL the client taps to download.
+ */
+export function formatWhatsAppInvoiceMessage(
+  order: BespokeJobOrder,
+  invoiceUrl: string
+): string {
+  return [
+    `*Maison L'Atelier // Invoice*`,
+    `Client: ${order.clientName}`,
+    `Order Reference: #${order.id}`,
+    `Garment: ${order.garmentTitle}`,
+    ``,
+    `Your invoice is ready. Tap below to view or download it:`,
+    invoiceUrl,
+  ].join('\n');
+}
+
+/**
  * Manual Payment Receipt Template (Strictly emoji-free)
  */
 export function formatWhatsAppPaymentReceipt(

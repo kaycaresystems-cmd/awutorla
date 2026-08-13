@@ -36,9 +36,11 @@ directory: `dist`. Required project environment variables: `VITE_SUPABASE_URL`,
 `VITE_SUPABASE_ANON_KEY` (Supabase dashboard -> Project Settings -> API).
 
 **Backend (Supabase):** set up manually, not via CI. Run
-[supabase/migrations/01_schema.sql](supabase/migrations/01_schema.sql) once in the
-Supabase dashboard's SQL Editor (idempotent — safe to re-run), then deploy the 4
-edge functions with the Supabase CLI:
+[supabase/migrations/01_schema.sql](supabase/migrations/01_schema.sql),
+[02_measurement_parameters.sql](supabase/migrations/02_measurement_parameters.sql),
+and [03_storage_buckets.sql](supabase/migrations/03_storage_buckets.sql) once each,
+in order, in the Supabase dashboard's SQL Editor (all idempotent — safe to re-run),
+then deploy the 4 edge functions with the Supabase CLI:
 
 ```bash
 supabase login
@@ -65,6 +67,11 @@ supabase secrets set HUBTEL_CLIENT_ID=... HUBTEL_CLIENT_SECRET=... HUBTEL_SENDER
   order_tasks tables, RLS policies, and the `handle_new_user` trigger that creates
   a `profiles` row (role defaulted to `client`) whenever an `auth.users` row is
   created.
+- `supabase/migrations/03_storage_buckets.sql` — two public Storage buckets:
+  `order-sketches` (intake reference images, uploaded from Quick Intake) and
+  `invoices` (generated PDF invoices, uploaded when a tailor shares one via
+  WhatsApp). Public so the resulting URLs work directly in `<img>` tags and
+  WhatsApp links; writes are still restricted to signed-in tailors/admins by RLS.
 - `supabase/functions/` — four edge functions, all using the service-role key
   server-side: `create-walkin-client`, `create-staff-account` (both verify the
   caller's role before acting), `track-order` and `resend-access-code` (both

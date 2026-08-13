@@ -6,6 +6,9 @@ import {
   Loader2,
   AlertCircle,
   MessageCircle,
+  ImagePlus,
+  X,
+  Calculator,
 } from 'lucide-react';
 import type { BespokeJobOrder, ClientBodyMeasurements, MeasurementParameter } from '../../types/workshop.types';
 import { sanitizeGhanaianPhoneNumber, detectGhanaNetwork } from '../../services/hubtel';
@@ -13,8 +16,11 @@ import { formatWhatsAppWelcomeMessage, openWhatsAppChat } from '../../services/w
 import { supabase } from '../../lib/supabase';
 import { saveOfflineJobCard, cacheClientMeasurements } from '../../lib/offlineStore';
 import { fetchMeasurementParameters } from '../../lib/measurementParameters';
+import { uploadOrderSketch } from '../../lib/storage';
 import { createWalkInClient, useAuth } from '../../lib/auth';
 import { Modal } from '../ui/Modal';
+
+const MAX_SKETCHES = 5;
 
 interface QuickIntakeModalProps {
   isOpen: boolean;
@@ -51,6 +57,17 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
   const [measurementParameters, setMeasurementParameters] = useState<MeasurementParameter[]>([]);
   const [measurementValues, setMeasurementValues] = useState<Record<string, number>>({});
 
+  // Reference Sketch/Photo Upload State
+  const [sketchFiles, setSketchFiles] = useState<File[]>([]);
+  const [sketchPreviews, setSketchPreviews] = useState<string[]>([]);
+
+  // Price Breakdown Calculator State (advisory only — not persisted with the order)
+  const [showPriceCalculator, setShowPriceCalculator] = useState(false);
+  const [calcFabricCost, setCalcFabricCost] = useState<number>(0);
+  const [calcLaborCost, setCalcLaborCost] = useState<number>(0);
+  const [calcExtrasCost, setCalcExtrasCost] = useState<number>(0);
+  const [calcMarkupPercent, setCalcMarkupPercent] = useState<number>(0);
+
   // Status State
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -60,6 +77,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
     isNewAccount: boolean;
     smsSent: boolean;
     accountError: string | null;
+    sketchUploadWarning: string | null;
   } | null>(null);
 
   // Reset the entire intake form each time the modal opens, since the parent keeps this
@@ -80,6 +98,16 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
       setDueDate('AUG 24, 2026');
       setUnit('in');
       setMeasurementValues({});
+      setSketchPreviews((prev) => {
+        prev.forEach((url) => URL.revokeObjectURL(url));
+        return [];
+      });
+      setSketchFiles([]);
+      setShowPriceCalculator(false);
+      setCalcFabricCost(0);
+      setCalcLaborCost(0);
+      setCalcExtrasCost(0);
+      setCalcMarkupPercent(0);
       setIsSubmitting(false);
       setErrorMessage(null);
       setSuccessInfo(null);
@@ -88,7 +116,35 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
         .then(setMeasurementParameters)
         .catch((err) => console.error('[QuickIntakeModal] Failed to load measurement parameters:', err));
     }
+    // Only reset when the modal transitions open — sketchPreviews is read via the
+    // updater form above precisely so it doesn't need to be a dependency here.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
+
+  const handleSketchSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selected = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (selected.length === 0) return;
+
+    setSketchFiles((prev) => {
+      const room = Math.max(0, MAX_SKETCHES - prev.length);
+      const accepted = selected.slice(0, room);
+      setSketchPreviews((prevPreviews) => [...prevPreviews, ...accepted.map((f) => URL.createObjectURL(f))]);
+      return [...prev, ...accepted];
+    });
+  };
+
+  const handleRemoveSketch = (idx: number) => {
+    setSketchPreviews((prev) => {
+      URL.revokeObjectURL(prev[idx]);
+      return prev.filter((_, i) => i !== idx);
+    });
+    setSketchFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+  const calcSuggestedTotal =
+    (calcFabricCost || 0) + (calcLaborCost || 0) + (calcExtrasCost || 0);
+  const calcSuggestedTotalWithMarkup = calcSuggestedTotal * (1 + (calcMarkupPercent || 0) / 100);
 
   if (!isOpen) return null;
 
@@ -140,6 +196,23 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
 
       const clientId = realClientId || `client-${Date.now().toString().slice(-6)}`;
 
+      // 0b. Upload any reference sketches/photos attached during intake. Non-fatal,
+      // same reasoning as account creation above: a failed upload shouldn't block
+      // saving the order — the tailor can attach images from the order later.
+      let uploadedImageUrls: string[] = [];
+      let sketchUploadWarning: string | null = null;
+      if (sketchFiles.length > 0) {
+        try {
+          uploadedImageUrls = await Promise.all(
+            sketchFiles.map((file) => uploadOrderSketch(generatedOrderId, file))
+          );
+        } catch (err) {
+          console.error('[QuickIntakeModal] Sketch upload failed:', err);
+          sketchUploadWarning =
+            'Order was saved, but the reference images failed to upload — you can add them again from the order later.';
+        }
+      }
+
       // 1. Build Tailoring Measurement Passport
       const measurementsPayload: ClientBodyMeasurements = {
         clientId,
@@ -172,8 +245,8 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
         fabricType: fabricType.trim(),
         fabricColor: fabricColor.trim(),
         fabricNotes: fabricNotes.trim(),
-        referenceImages: ['/shop/kente_corset.png', '/editorial.png'],
-        swatchImage: '/shop/kente_corset.png',
+        referenceImages: uploadedImageUrls,
+        swatchImage: uploadedImageUrls[0],
         measurements: measurementsPayload,
         depositPaid,
         totalAmount,
@@ -269,7 +342,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
       }
 
       onOrderCreated(newOrder);
-      setSuccessInfo({ orderId: generatedOrderId, accessCode, isNewAccount, smsSent, accountError });
+      setSuccessInfo({ orderId: generatedOrderId, accessCode, isNewAccount, smsSent, accountError, sketchUploadWarning });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       setErrorMessage(msg);
@@ -324,6 +397,13 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                   <span>{successInfo.accountError}</span>
                 </div>
               )
+            )}
+
+            {successInfo.sketchUploadWarning && (
+              <div className="mx-auto max-w-sm p-3.5 bg-amber-50 border border-amber-200 text-amber-800 rounded-2xl text-xs flex items-start gap-2 text-left">
+                <AlertCircle size={15} className="mt-0.5 shrink-0" />
+                <span>{successInfo.sketchUploadWarning}</span>
+              </div>
             )}
 
             <div className="pt-4 flex flex-wrap justify-center gap-3">
@@ -444,6 +524,40 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
             <div className="p-6 glass rounded-2xl border border-gold-500/20 space-y-4 shadow-sm">
               <span className="text-xs font-semibold text-accent-950 uppercase tracking-widest block">3. Garment Specification & Pricing</span>
 
+              {/* Reference Sketch / Photo Upload */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <label className={labelClass}>Reference Sketches / Photos</label>
+                  <span className="text-[10px] text-gray-400 font-mono">{sketchPreviews.length}/{MAX_SKETCHES}</span>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
+                  {sketchPreviews.map((url, idx) => (
+                    <div key={url} className="relative h-20 rounded-xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm group">
+                      <img src={url} alt={`Sketch ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSketch(idx)}
+                        aria-label="Remove image"
+                        className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center opacity-80 hover:opacity-100 transition-opacity"
+                      >
+                        <X size={11} />
+                      </button>
+                    </div>
+                  ))}
+
+                  {sketchPreviews.length < MAX_SKETCHES && (
+                    <label className="h-20 rounded-xl border-2 border-dashed border-gold-500/30 bg-white/60 hover:bg-gold-50/50 flex flex-col items-center justify-center gap-1 cursor-pointer transition-colors text-gold-700">
+                      <ImagePlus size={17} />
+                      <span className="text-[10px] font-semibold">Add Image</span>
+                      <input type="file" accept="image/*" multiple onChange={handleSketchSelect} className="hidden" />
+                    </label>
+                  )}
+                </div>
+                <p className="text-[11px] text-gray-400 mt-1.5 font-sans">
+                  Upload design sketches or fabric reference photos — these appear on the digital job card when the order is viewed.
+                </p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className={labelClass}>Garment Title *</label>
@@ -502,6 +616,89 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                   placeholder="e.g. Double-reinforced boning with gold thread embroidery along neckline"
                   className={inputClass}
                 />
+              </div>
+
+              {/* Price Breakdown Calculator */}
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowPriceCalculator((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs font-semibold text-accent-800 hover:text-accent-950 transition-colors"
+                >
+                  <Calculator size={13} className="text-gold-700" />
+                  <span>{showPriceCalculator ? 'Hide' : 'Help me price this'} pricing calculator</span>
+                </button>
+
+                {showPriceCalculator && (
+                  <div className="mt-3 p-4 bg-white/70 border border-gray-200/90 rounded-xl space-y-3 animate-in fade-in">
+                    <p className="text-[11px] text-gray-500 font-sans">
+                      Estimate a total from cost inputs — this is a helper only, it isn't saved with the order.
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-1">Fabric Cost</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={calcFabricCost || ''}
+                          onChange={(e) => setCalcFabricCost(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-200 rounded-lg p-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-gold-500/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-1">Labor Cost</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={calcLaborCost || ''}
+                          onChange={(e) => setCalcLaborCost(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-200 rounded-lg p-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-gold-500/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-1">Trims & Extras</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={calcExtrasCost || ''}
+                          onChange={(e) => setCalcExtrasCost(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-200 rounded-lg p-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-gold-500/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-500 mb-1">Markup %</label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="1"
+                          value={calcMarkupPercent || ''}
+                          onChange={(e) => setCalcMarkupPercent(parseFloat(e.target.value) || 0)}
+                          className="w-full bg-white border border-gray-200 rounded-lg p-1.5 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-gold-500/30"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-1 border-t border-gray-200/80">
+                      <div className="text-xs font-sans">
+                        <span className="text-gray-500">Cost subtotal: </span>
+                        <span className="font-mono font-semibold text-gray-700">GHS {calcSuggestedTotal.toFixed(2)}</span>
+                        <span className="text-gray-400"> · with markup: </span>
+                        <span className="font-mono font-semibold text-accent-900">GHS {calcSuggestedTotalWithMarkup.toFixed(2)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setTotalAmount(parseFloat(calcSuggestedTotalWithMarkup.toFixed(2)))}
+                        disabled={calcSuggestedTotalWithMarkup <= 0}
+                        className="px-3 py-1.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 disabled:opacity-40 text-white rounded-lg text-[11px] font-semibold shadow-sm transition-all"
+                      >
+                        Apply to Total Price
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">

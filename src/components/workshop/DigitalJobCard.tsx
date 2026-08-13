@@ -14,14 +14,20 @@ import {
   AlertOctagon,
   Clock,
   Receipt,
+  FileDown,
+  Image as ImageIcon,
 } from 'lucide-react';
 import type { BespokeJobOrder, WorkshopStage, OrderTaskItem, TaskStatus, MeasurementParameter } from '../../types/workshop.types';
 import { MeasurementSilhouette } from './MeasurementSilhouette';
-import { formatWhatsAppStageMessage, openWhatsAppChat } from '../../services/whatsapp';
+import { formatWhatsAppStageMessage, formatWhatsAppInvoiceMessage, openWhatsAppChat } from '../../services/whatsapp';
 import { RecordPaymentModal } from './RecordPaymentModal';
 import { supabase } from '../../lib/supabase';
 import { saveOfflineJobCard } from '../../lib/offlineStore';
 import { fetchMeasurementParameters } from '../../lib/measurementParameters';
+import { fetchAppSettings, DEFAULT_APP_SETTINGS } from '../../lib/settings';
+import type { AppSettings } from '../../lib/settings';
+import { downloadInvoicePdf, invoicePdfBlob } from '../../lib/invoice';
+import { uploadInvoicePdf } from '../../lib/storage';
 import { useAuth } from '../../lib/auth';
 import { Modal } from '../ui/Modal';
 
@@ -66,6 +72,9 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskTailor, setNewTaskTailor] = useState('Master Kwame Mensah');
   const [measurementParameters, setMeasurementParameters] = useState<MeasurementParameter[]>([]);
+  const [appSettings, setAppSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
+  const [isSendingInvoice, setIsSendingInvoice] = useState(false);
+  const [invoiceError, setInvoiceError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -74,6 +83,11 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
         if (isMounted) setMeasurementParameters(params);
       })
       .catch((err) => console.error('[DigitalJobCard] Failed to load measurement parameters:', err));
+    fetchAppSettings()
+      .then((settings) => {
+        if (isMounted) setAppSettings(settings);
+      })
+      .catch((err) => console.error('[DigitalJobCard] Failed to load business settings:', err));
     return () => {
       isMounted = false;
     };
@@ -88,6 +102,8 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
       setLastNotification(null);
       setNewTaskTitle('');
       setNewTaskTailor(order.assignedTailor || 'Master Kwame Mensah');
+      setIsSendingInvoice(false);
+      setInvoiceError(null);
     }
   }, [order?.id, isOpen]);
 
@@ -229,6 +245,29 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
     setIsAdvancing(false);
   };
 
+  const handleDownloadInvoice = () => {
+    downloadInvoicePdf(order, appSettings);
+  };
+
+  // Uploads the generated invoice to storage and opens WhatsApp with a link to it —
+  // wa.me deep links can only pre-fill text, not attach a file, so a shareable link
+  // is the closest this app can get to "sending" the PDF itself.
+  const handleSendInvoiceViaWhatsApp = async () => {
+    setIsSendingInvoice(true);
+    setInvoiceError(null);
+    try {
+      const blob = invoicePdfBlob(order, appSettings);
+      const invoiceUrl = await uploadInvoicePdf(order.id, blob);
+      const waMsg = formatWhatsAppInvoiceMessage(order, invoiceUrl);
+      openWhatsAppChat(order.clientPhone, waMsg);
+    } catch (err) {
+      console.error('[DigitalJobCard] Invoice upload/share failed:', err);
+      setInvoiceError('Could not upload the invoice for sharing. You can still download it directly.');
+    } finally {
+      setIsSendingInvoice(false);
+    }
+  };
+
   const tabs: { id: typeof activeTab; label: string }[] = [
     { id: 'measurements', label: 'Measurements' },
     { id: 'tasks', label: `Tasks (${currentTasks.length})` },
@@ -281,6 +320,26 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
             </button>
           </div>
 
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleDownloadInvoice}
+              title="Download invoice PDF"
+              className="px-3 py-1.5 bg-white/90 hover:bg-white border border-gray-200 text-accent-900 font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+            >
+              <FileDown size={12} className="text-gold-700" />
+              <span>Invoice</span>
+            </button>
+            <button
+              onClick={handleSendInvoiceViaWhatsApp}
+              disabled={isSendingInvoice}
+              title="Share invoice link via WhatsApp"
+              className="px-3 py-1.5 bg-[#25D366] hover:bg-[#1EBE5D] disabled:opacity-60 text-white font-medium text-xs rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+            >
+              {isSendingInvoice ? <Loader2 size={12} className="animate-spin" /> : <MessageCircle size={12} />}
+              <span>Send</span>
+            </button>
+          </div>
+
           <div className="flex items-center gap-4">
             <div>
               <span className="text-gray-400 block text-[10px] uppercase tracking-wider">Master Artisan</span>
@@ -292,6 +351,13 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
             </div>
           </div>
         </div>
+
+        {invoiceError && (
+          <div className="px-6 py-2.5 bg-rose-50 border-b border-rose-200 text-rose-700 text-xs flex items-center gap-2">
+            <AlertOctagon size={13} className="shrink-0" />
+            <span>{invoiceError}</span>
+          </div>
+        )}
 
         {/* WhatsApp Notification Prompt Toast */}
         {lastNotification && (
@@ -454,13 +520,26 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
           {/* TAB: Fabric & References */}
           {activeTab === 'fabric' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {order.referenceImages.map((img, idx) => (
-                  <div key={idx} className="h-64 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm">
-                    <img src={img} alt={`Reference ${idx + 1}`} className="w-full h-full object-cover" />
-                  </div>
-                ))}
-              </div>
+              {order.referenceImages.length === 0 ? (
+                <div className="p-8 text-center glass rounded-2xl border border-gray-200/80 text-xs text-gray-500 flex flex-col items-center gap-2">
+                  <ImageIcon size={22} className="text-gray-300" />
+                  <span>No reference sketches or photos were uploaded for this order.</span>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {order.referenceImages.map((img, idx) => (
+                    <a
+                      key={idx}
+                      href={img}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-64 rounded-2xl overflow-hidden border border-gray-200 bg-gray-100 shadow-sm block"
+                    >
+                      <img src={img} alt={`Reference ${idx + 1}`} className="w-full h-full object-cover" />
+                    </a>
+                  ))}
+                </div>
+              )}
 
               <div className="p-6 glass rounded-2xl space-y-3 text-sm border border-gold-500/20 shadow-sm">
                 <div className="flex items-center gap-2 text-accent-800 font-semibold font-display text-base">
