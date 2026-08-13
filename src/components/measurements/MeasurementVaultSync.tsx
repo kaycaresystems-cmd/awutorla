@@ -5,7 +5,6 @@ import {
   CheckCircle2,
   Lock,
   Loader2,
-  Ruler,
 } from 'lucide-react';
 import type { MeasurementParameter } from '../../types/workshop.types';
 import { supabase } from '../../lib/supabase';
@@ -20,13 +19,15 @@ interface MeasurementVaultSyncProps {
 }
 
 export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targetClientId }) => {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const clientId = targetClientId || user?.id || '';
 
   const [parameters, setParameters] = useState<MeasurementParameter[]>([]);
   const [unit, setUnit] = useState<'in' | 'cm'>('in');
   const [values, setValues] = useState<Record<string, number>>({});
   const [notes, setNotes] = useState<string>('');
+  const [clientName, setClientName] = useState<string>('');
+  const [clientPhone, setClientPhone] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [syncSuccess, setSyncSuccess] = useState<boolean>(false);
@@ -42,13 +43,14 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
     async function load() {
       setIsLoading(true);
       try {
-        const [params, headerResult, valuesResult] = await Promise.all([
+        const [params, headerResult, valuesResult, profileResult] = await Promise.all([
           fetchMeasurementParameters(),
           supabase.from('client_measurements').select('*').eq('client_id', clientId).maybeSingle(),
           supabase
             .from('client_measurement_values')
             .select('value, measurement_parameters(key)')
             .eq('client_id', clientId),
+          supabase.from('profiles').select('full_name, phone_number').eq('id', clientId).maybeSingle(),
         ]);
         if (!isMounted) return;
 
@@ -56,6 +58,10 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
         const header = headerResult.data as any;
         setUnit(header?.unit === 'cm' ? 'cm' : 'in');
         setNotes(header?.notes || '');
+
+        const profileRow = profileResult.data as any;
+        setClientName(profileRow?.full_name || '');
+        setClientPhone(profileRow?.phone_number || '');
 
         const nextValues: Record<string, number> = {};
         for (const row of (valuesResult.data || []) as any[]) {
@@ -102,7 +108,10 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
     const now = new Date().toISOString();
 
     try {
-      cacheClientMeasurements({
+      cacheClientMeasurements(clientId, {
+        clientId,
+        clientName: clientName || profile?.full_name || '',
+        clientPhone: clientPhone || profile?.phone_number || '',
         unit,
         values,
         notes: notes.trim() || undefined,

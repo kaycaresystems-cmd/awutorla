@@ -101,16 +101,16 @@ export const TailorsManager: React.FC = () => {
     setIsCreating(true);
 
     try {
-      const result = await createStaffAccount({
-        email: newEmail.trim(),
-        fullName: newFullName.trim(),
-        role: newRole,
-        phone: newPhone.trim() || undefined,
-      });
+      const result = await createStaffAccount(
+        newFullName.trim(),
+        newEmail.trim(),
+        newRole,
+        newPhone.trim() || undefined
+      );
 
       setCreatedAccount({
         email: newEmail.trim(),
-        tempPassword: result.temporaryPassword,
+        tempPassword: result.tempPassword,
       });
 
       // Reload the team list so the newly created user appears immediately

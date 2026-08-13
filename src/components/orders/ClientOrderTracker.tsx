@@ -8,7 +8,6 @@ import {
   Phone,
   ShieldCheck,
   Calendar,
-  Clock,
 } from 'lucide-react';
 import type { BespokeJobOrder } from '../../types/workshop.types';
 import { FabricStatusBadge } from '../ui/FabricStatusBadge';
