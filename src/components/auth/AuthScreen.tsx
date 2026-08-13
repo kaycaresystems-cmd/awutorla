@@ -6,11 +6,13 @@ import { CenteredCardShell } from '../ui/CenteredCardShell';
 type Mode = 'clientCode' | 'signIn';
 
 const inputClass =
-  'w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 pl-9 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
-const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
+  'w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 pl-10 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all';
+const labelClass = 'block text-xs font-semibold text-gray-700 mb-1 tracking-wide';
 const submitButtonClass = (disabled: boolean) =>
-  `w-full py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
-    disabled ? 'bg-gray-200 text-gray-400 cursor-wait' : 'bg-gray-900 text-white hover:bg-accent-600'
+  `w-full py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-md ${
+    disabled
+      ? 'bg-gray-200 text-gray-400 cursor-wait'
+      : 'bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white shadow-accent-900/15 hover:shadow-lg'
   }`;
 
 // There is no self-service account creation in this app. Client accounts are only
@@ -93,22 +95,24 @@ export const AuthScreen: React.FC = () => {
 
   return (
     <CenteredCardShell>
-      <div className="text-center space-y-1 mb-6">
-        <div className="w-10 h-10 mx-auto rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-semibold">
+      <div className="text-center space-y-2 mb-8">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-luxury flex items-center justify-center text-lg font-semibold font-display tracking-wider">
           LA
         </div>
-        <h1 className="text-xl font-semibold text-gray-900 mt-2">Maison L'Atelier</h1>
-        <p className="text-xs text-gray-500">
-          {mode === 'clientCode' ? 'Enter your client access code' : 'Sign in to your account'}
+        <h1 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 mt-3">Maison L'Atelier</h1>
+        <p className="text-xs text-gray-500 font-sans">
+          {mode === 'clientCode' ? 'Enter your bespoke client access code' : 'Atelier staff & artisan portal'}
         </p>
       </div>
 
-      <div className="flex items-center bg-gray-100 p-1 rounded-lg text-xs mb-6">
+      <div className="flex items-center bg-gray-100/90 p-1 rounded-xl text-xs mb-6 border border-gray-200/60">
         <button
           type="button"
           onClick={() => switchMode('clientCode')}
-          className={`flex-1 px-2.5 py-1.5 rounded-md font-medium transition-colors ${
-            mode === 'clientCode' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all ${
+            mode === 'clientCode'
+              ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           Client Code
@@ -116,11 +120,13 @@ export const AuthScreen: React.FC = () => {
         <button
           type="button"
           onClick={() => switchMode('signIn')}
-          className={`flex-1 px-2.5 py-1.5 rounded-md font-medium transition-colors ${
-            mode === 'signIn' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+          className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all ${
+            mode === 'signIn'
+              ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm'
+              : 'text-gray-500 hover:text-gray-900'
           }`}
         >
-          Sign In
+          Staff Sign In
         </button>
       </div>
 

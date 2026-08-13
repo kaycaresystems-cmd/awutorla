@@ -4,8 +4,8 @@ import type { AppSettings } from '../../lib/settings';
 import { fetchAppSettings, updateAppSetting, DEFAULT_APP_SETTINGS } from '../../lib/settings';
 
 const inputClass =
-  'w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
-const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
+  'w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all';
+const labelClass = 'block text-xs font-semibold text-gray-700 mb-1 tracking-wide uppercase';
 
 export const BusinessSettingsEditor: React.FC = () => {
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
@@ -52,16 +52,16 @@ export const BusinessSettingsEditor: React.FC = () => {
   if (isLoading) {
     return (
       <div className="p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-        <Loader2 size={16} className="animate-spin" />
-        <span>Loading business settings...</span>
+        <Loader2 size={18} className="animate-spin text-accent-700" />
+        <span>Loading atelier business settings...</span>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-4">
+    <form onSubmit={handleSave} className="space-y-5 animate-in fade-in">
       {errorMessage && (
-        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
+        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
           <AlertCircle size={15} className="mt-0.5 shrink-0" />
           <span>{errorMessage}</span>
         </div>
@@ -69,7 +69,7 @@ export const BusinessSettingsEditor: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className={labelClass}>Business Name</label>
+          <label className={labelClass}>Atelier House Name</label>
           <input
             type="text"
             value={settings.business_name}
@@ -78,63 +78,63 @@ export const BusinessSettingsEditor: React.FC = () => {
           />
         </div>
         <div>
-          <label className={labelClass}>Currency Code</label>
+          <label className={labelClass}>Currency ISO Code</label>
           <input
             type="text"
             value={settings.currency}
             onChange={(e) => handleChange('currency', e.target.value.toUpperCase())}
             maxLength={3}
-            className={inputClass}
+            className={`${inputClass} font-mono uppercase`}
           />
         </div>
         <div>
-          <label className={labelClass}>Contact Phone</label>
+          <label className={labelClass}>Concierge Contact Phone</label>
           <input
             type="tel"
             value={settings.contact_phone}
             onChange={(e) => handleChange('contact_phone', e.target.value)}
             placeholder="024XXXXXXX"
-            className={inputClass}
+            className={`${inputClass} font-mono`}
           />
         </div>
         <div>
-          <label className={labelClass}>Contact Email</label>
+          <label className={labelClass}>Concierge Contact Email</label>
           <input
             type="email"
             value={settings.contact_email}
             onChange={(e) => handleChange('contact_email', e.target.value)}
-            placeholder="hello@example.com"
+            placeholder="concierge@latelier.com"
             className={inputClass}
           />
         </div>
       </div>
 
-      <div>
-        <label className={labelClass}>WhatsApp Delivery Message Template</label>
+      <div className="space-y-1.5">
+        <label className={labelClass}>WhatsApp Concierge Delivery Message Template</label>
         <textarea
-          rows={2}
+          rows={3}
           value={settings.whatsapp_delivery_message}
           onChange={(e) => handleChange('whatsapp_delivery_message', e.target.value)}
-          className={`${inputClass} leading-relaxed`}
+          className={`${inputClass} leading-relaxed font-sans`}
         />
-        <p className="text-xs text-gray-400 mt-1">Use {'{orderId}'} and {'{businessName}'} as placeholders.</p>
+        <p className="text-[11px] text-gray-400 font-mono">Use {'{orderId}'} and {'{businessName}'} as dynamic template tags.</p>
       </div>
 
       {saveSuccess && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs flex items-center gap-2">
-          <CheckCircle2 size={16} className="shrink-0" />
-          <span>Business settings saved.</span>
+        <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-semibold flex items-center gap-2 shadow-sm animate-in fade-in">
+          <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+          <span>Atelier settings saved successfully.</span>
         </div>
       )}
 
-      <div className="flex justify-end pt-2 border-t border-gray-100">
+      <div className="flex justify-end pt-2 border-t border-gray-200/80">
         <button
           type="submit"
           disabled={isSaving}
-          className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-6 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white text-xs sm:text-sm font-semibold rounded-xl shadow-md shadow-accent-900/15 transition-all flex items-center gap-2 disabled:opacity-50"
         >
-          {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
-          <span>Save Settings</span>
+          {isSaving ? <Loader2 size={15} className="animate-spin text-gold-300" /> : <Save size={15} className="text-gold-300" />}
+          <span>Save Atelier Settings</span>
         </button>
       </div>
     </form>

@@ -11,9 +11,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-// Error boundaries must be class components — React has no hook equivalent (yet).
-// Without this, any uncaught render error anywhere in the tree white-screens the
-// whole app with no way back except a manual browser refresh the user has to guess.
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
 
@@ -34,23 +31,22 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     if (this.state.error) {
       return (
         <CenteredCardShell>
-          <div className="space-y-5 text-center">
-            <div className="w-12 h-12 mx-auto rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center">
-              <AlertTriangle size={22} />
+          <div className="space-y-6 text-center animate-in fade-in">
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center shadow-sm">
+              <AlertTriangle size={26} />
             </div>
-            <div className="space-y-1">
-              <h1 className="text-xl font-semibold text-gray-900">Something went wrong</h1>
-              <p className="text-sm text-gray-500 leading-relaxed">
-                The Maison L'Atelier app hit an unexpected error. Your data is safe — reloading
-                usually resolves this.
+            <div className="space-y-2">
+              <h1 className="text-2xl font-semibold text-accent-950 font-display">Something went wrong</h1>
+              <p className="text-xs sm:text-sm text-gray-500 leading-relaxed font-sans">
+                The atelier app encountered an unexpected state. Your local and offline records remain secure — refreshing the studio session will restore normal operation.
               </p>
             </div>
             <button
               onClick={this.handleReload}
-              className="w-full py-2.5 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-accent-600 transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white shadow-md shadow-accent-900/15 transition-all flex items-center justify-center gap-2"
             >
-              <RefreshCw size={15} />
-              <span>Reload App</span>
+              <RefreshCw size={15} className="text-gold-300" />
+              <span>Reload Atelier App</span>
             </button>
           </div>
         </CenteredCardShell>

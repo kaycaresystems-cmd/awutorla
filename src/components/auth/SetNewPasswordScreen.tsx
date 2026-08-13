@@ -4,7 +4,6 @@ import { useAuth } from '../../lib/auth';
 import { CenteredCardShell } from '../ui/CenteredCardShell';
 
 // Shown when the user arrives via a Supabase password-reset email link
-// (AuthProvider.isPasswordRecovery) instead of the normal signed-in app.
 export const SetNewPasswordScreen: React.FC = () => {
   const { updatePassword, signOut } = useAuth();
   const [password, setPassword] = useState('');
@@ -41,22 +40,25 @@ export const SetNewPasswordScreen: React.FC = () => {
 
   return (
     <CenteredCardShell>
-      <div className="text-center space-y-1 mb-6">
-        <div className="w-10 h-10 mx-auto rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-semibold">
+      <div className="text-center space-y-2 mb-8">
+        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-luxury flex items-center justify-center text-lg font-semibold font-display">
           LA
         </div>
-        <h1 className="text-xl font-semibold text-gray-900 mt-2">Set a New Password</h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 mt-3">Set New Password</h1>
+        <p className="text-xs text-gray-500 font-sans">Enter your new credentials for Maison L'Atelier</p>
       </div>
 
       {success ? (
-        <div className="space-y-4 text-center">
-          <div className="w-12 h-12 mx-auto rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center">
-            <CheckCircle2 size={24} />
+        <div className="space-y-5 text-center animate-in fade-in">
+          <div className="w-16 h-16 mx-auto rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-600 flex items-center justify-center shadow-sm">
+            <CheckCircle2 size={32} />
           </div>
-          <p className="text-sm text-gray-600">Password updated. Sign in again with your new password.</p>
+          <p className="text-xs sm:text-sm text-gray-600 font-sans">
+            Password updated successfully. You may now sign in to your atelier account.
+          </p>
           <button
             onClick={() => signOut()}
-            className="w-full py-2.5 rounded-lg text-sm font-semibold bg-gray-900 text-white hover:bg-accent-600 transition-colors"
+            className="w-full py-3 rounded-xl text-xs sm:text-sm font-semibold bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white shadow-md shadow-accent-900/15 transition-all"
           >
             Continue to Sign In
           </button>
@@ -64,7 +66,7 @@ export const SetNewPasswordScreen: React.FC = () => {
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">New Password</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1 tracking-wide">New Password</label>
             <div className="relative">
               <input
                 type="password"
@@ -74,14 +76,14 @@ export const SetNewPasswordScreen: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="At least 6 characters"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 pl-9 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 pl-10 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
               />
-              <Lock size={14} className="absolute left-3 top-3 text-gray-400" />
+              <Lock size={14} className="absolute left-3 top-3 text-gold-700" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">Confirm New Password</label>
+            <label className="block text-xs font-semibold text-gray-700 mb-1 tracking-wide">Confirm New Password</label>
             <div className="relative">
               <input
                 type="password"
@@ -90,14 +92,14 @@ export const SetNewPasswordScreen: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Re-enter password"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 pl-9 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 pl-10 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
               />
-              <Lock size={14} className="absolute left-3 top-3 text-gray-400" />
+              <Lock size={14} className="absolute left-3 top-3 text-gold-700" />
             </div>
           </div>
 
           {errorMessage && (
-            <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
+            <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
               <AlertCircle size={15} className="mt-0.5 shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -106,14 +108,12 @@ export const SetNewPasswordScreen: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2.5 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
-              isSubmitting ? 'bg-gray-200 text-gray-400 cursor-wait' : 'bg-gray-900 text-white hover:bg-accent-600'
-            }`}
+            className="w-full py-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 shadow-md bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white shadow-accent-900/15 disabled:opacity-50"
           >
             {isSubmitting ? (
               <>
-                <Loader2 size={16} className="animate-spin" />
-                <span>Updating...</span>
+                <Loader2 size={16} className="animate-spin text-gold-300" />
+                <span>Updating Password...</span>
               </>
             ) : (
               <span>Update Password</span>

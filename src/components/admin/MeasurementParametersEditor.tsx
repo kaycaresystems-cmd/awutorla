@@ -9,9 +9,7 @@ import {
 } from '../../lib/measurementParameters';
 
 /**
- * Admin console for the global, admin-defined measurement parameter list
- * (bust, waist, ... plus anything an admin adds). The same list applies to
- * every client — this is not a per-client custom-field builder.
+ * Admin console for the global, admin-defined measurement parameter schema.
  */
 export const MeasurementParametersEditor: React.FC = () => {
   const [parameters, setParameters] = useState<MeasurementParameter[]>([]);
@@ -95,65 +93,67 @@ export const MeasurementParametersEditor: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-gray-500">
-        This list applies to every client's measurement profile — add a parameter here and it appears on every
-        client's Sizing Vault immediately.
+    <div className="space-y-6 animate-in fade-in">
+      <p className="text-xs text-gray-500 font-sans">
+        This master list applies across all client passports — add or toggle a parameter here to update the atelier's global measurement schema.
       </p>
 
       {errorMessage && (
-        <div className="p-3 rounded-lg bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
+        <div className="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 flex items-start gap-2 text-xs">
           <AlertCircle size={15} className="mt-0.5 shrink-0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
-      <form onSubmit={handleAdd} className="flex gap-2">
+      {/* Add Parameter Input Bar */}
+      <form onSubmit={handleAdd} className="flex flex-col sm:flex-row gap-2.5">
         <input
           type="text"
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
-          placeholder="e.g. Thigh Circumference"
-          className="flex-1 bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+          placeholder="e.g. Thigh Circumference, Bicep Width..."
+          className="flex-1 bg-white/90 border border-gray-200/90 rounded-xl p-2.5 pl-4 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
         />
         <button
           type="submit"
           disabled={isCreating || !newLabel.trim()}
-          className="px-4 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-5 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white rounded-xl text-xs sm:text-sm font-semibold shadow-md shadow-accent-900/15 transition-all flex items-center justify-center gap-2 disabled:opacity-50 shrink-0"
         >
-          {isCreating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+          {isCreating ? <Loader2 size={14} className="animate-spin text-gold-300" /> : <Plus size={15} className="text-gold-300" />}
           <span>Add Parameter</span>
         </button>
       </form>
 
       {isLoading ? (
         <div className="p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-          <Loader2 size={16} className="animate-spin" />
-          <span>Loading parameters...</span>
+          <Loader2 size={18} className="animate-spin text-accent-700" />
+          <span>Loading parameter schema...</span>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2.5">
           {parameters.map((p, index) => (
             <div
               key={p.id}
-              className={`p-3.5 border flex items-center justify-between gap-3 ${
-                p.isActive ? 'glass-inset' : 'bg-gray-50/50 border-gray-100 opacity-60'
+              className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                p.isActive ? 'glass border-gold-500/20 shadow-sm' : 'bg-gray-50/70 border-gray-200/60 opacity-60'
               }`}
             >
               <div className="flex items-center gap-3">
-                <Ruler size={15} className="text-accent-600 shrink-0" />
+                <div className="w-8 h-8 rounded-xl bg-gold-50 text-gold-700 border border-gold-500/20 flex items-center justify-center shrink-0">
+                  <Ruler size={15} />
+                </div>
                 <div>
-                  <div className="text-sm font-medium text-gray-900">{p.label}</div>
-                  <div className="text-xs text-gray-400">{p.key}</div>
+                  <div className="text-xs sm:text-sm font-semibold text-accent-950">{p.label}</div>
+                  <div className="text-[11px] text-gray-400 font-mono">{p.key}</div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   disabled={busyId === p.id || index === 0}
                   onClick={() => handleMove(index, -1)}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
                   aria-label="Move up"
                 >
                   <ArrowUp size={14} />
@@ -162,7 +162,7 @@ export const MeasurementParametersEditor: React.FC = () => {
                   type="button"
                   disabled={busyId === p.id || index === parameters.length - 1}
                   onClick={() => handleMove(index, 1)}
-                  className="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors disabled:opacity-30"
+                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
                   aria-label="Move down"
                 >
                   <ArrowDown size={14} />
@@ -171,9 +171,13 @@ export const MeasurementParametersEditor: React.FC = () => {
                   type="button"
                   disabled={busyId === p.id}
                   onClick={() => handleToggleActive(p)}
-                  className="px-2.5 py-1.5 rounded-md text-xs font-medium text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1.5"
+                  className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 shadow-sm ${
+                    p.isActive
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                      : 'bg-gray-100 text-gray-500 border-gray-200'
+                  }`}
                 >
-                  {p.isActive ? <Eye size={13} /> : <EyeOff size={13} />}
+                  {p.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
                   <span>{p.isActive ? 'Active' : 'Hidden'}</span>
                 </button>
               </div>

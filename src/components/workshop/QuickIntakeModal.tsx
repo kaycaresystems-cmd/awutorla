@@ -23,8 +23,8 @@ interface QuickIntakeModalProps {
 }
 
 const inputClass =
-  'w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
-const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
+  'w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500/50 shadow-sm transition-all';
+const labelClass = 'block text-xs font-semibold text-gray-700 mb-1 tracking-wide';
 
 export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
   isOpen,
@@ -287,37 +287,40 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
       icon={<UserPlus size={17} />}
       maxWidth="max-w-4xl"
     >
-      <form onSubmit={handleSubmit} className="p-6 space-y-6">
+      <form onSubmit={handleSubmit} className="p-6 sm:p-7 space-y-6">
         {successInfo ? (
-          <div className="p-8 text-center glass-inset border-emerald-200 space-y-4">
-            <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={32} />
+          <div className="p-8 text-center glass rounded-3xl border border-gold-500/30 space-y-5 animate-in fade-in">
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+              <CheckCircle2 size={34} />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900">
-              Bespoke Order #{successInfo.orderId} Created
-            </h3>
-            <p className="text-sm text-gray-600 max-w-md mx-auto leading-relaxed">
-              Client profile, 6-point tailoring passport, and initial workshop task have been saved to the Kanban board and synchronized.
+            <div>
+              <span className="text-[11px] font-semibold text-gold-700 uppercase tracking-widest">Bespoke Registration Complete</span>
+              <h3 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 mt-1">
+                Order #{successInfo.orderId} Created
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-600 max-w-md mx-auto leading-relaxed font-sans">
+              Client profile, 6-point tailoring passport, and initial workshop task have been saved to the atelier and synchronized with the master database.
             </p>
 
             {successInfo.accessCode ? (
-              <div className="mx-auto max-w-sm p-4 bg-white/70 border border-gray-200 space-y-1.5">
-                <span className="text-xs font-medium text-gray-500 block">
-                  {successInfo.isNewAccount ? 'Client Account Created' : 'Client Account Recognized'}
+              <div className="mx-auto max-w-sm p-5 bg-white/95 rounded-2xl border border-gold-500/40 shadow-sm space-y-2">
+                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider block">
+                  {successInfo.isNewAccount ? 'New Client Access Code' : 'Recognized Client Access Code'}
                 </span>
-                <span className="text-2xl tracking-[0.2em] text-gray-900 font-semibold block">
+                <span className="text-3xl tracking-[0.25em] text-accent-950 font-mono font-bold block">
                   {successInfo.accessCode}
                 </span>
-                <p className="text-xs text-gray-500 leading-relaxed">
+                <p className="text-xs text-gray-500 leading-relaxed font-sans pt-1">
                   {successInfo.smsSent
-                    ? "Sent to the client by SMS — this code signs them in to track their order."
-                    : "SMS delivery couldn't be confirmed — please read this code to the client or send it via WhatsApp below."}
+                    ? 'Delivered to the client via SMS — this code signs them in to track their bespoke order.'
+                    : 'SMS delivery pending — please hand off this code directly or send it via WhatsApp.'}
                 </p>
               </div>
             ) : (
               successInfo.accountError && (
-                <div className="mx-auto max-w-sm p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-start gap-2 text-left">
-                  <AlertCircle size={14} className="mt-0.5 shrink-0" />
+                <div className="mx-auto max-w-sm p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-start gap-2 text-left">
+                  <AlertCircle size={15} className="mt-0.5 shrink-0" />
                   <span>{successInfo.accountError}</span>
                 </div>
               )
@@ -333,26 +336,26 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                     : waMsg;
                   openWhatsAppChat(clientPhone, withCode);
                 }}
-                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm flex items-center gap-2"
               >
-                <MessageCircle size={15} />
-                <span>Also Send via WhatsApp</span>
+                <MessageCircle size={16} />
+                <span>Send WhatsApp Welcome</span>
               </button>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors"
+                className="px-5 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-sm"
               >
-                View in Workshop Kanban
+                Done / Close
               </button>
             </div>
           </div>
         ) : (
           <>
             {/* SECTION 1: CLIENT CONTACT */}
-            <div className="p-5 glass-inset space-y-4">
-              <span className="text-xs font-semibold text-accent-600 block">Client Information</span>
+            <div className="p-6 glass rounded-2xl border border-gold-500/20 space-y-4 shadow-sm">
+              <span className="text-xs font-semibold text-accent-950 uppercase tracking-widest block">1. Client Dossier</span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -369,9 +372,9 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-medium text-gray-600">Ghana Phone (WhatsApp) *</label>
+                    <label className={labelClass}>Ghana Phone (WhatsApp) *</label>
                     {detectedNet !== 'unknown' && (
-                      <span className="text-[10px] font-medium uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+                      <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 font-mono">
                         {detectedNet.replace('-gh', '').toUpperCase()}
                       </span>
                     )}
@@ -383,32 +386,36 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                       value={clientPhone}
                       onChange={(e) => setClientPhone(e.target.value)}
                       placeholder="024XXXXXXX"
-                      className={`${inputClass} pl-8`}
+                      className={`${inputClass} pl-9 font-mono`}
                     />
-                    <Phone size={13} className="absolute left-2.5 top-3 text-gray-400" />
+                    <Phone size={14} className="absolute left-3 top-3 text-gold-700" />
                   </div>
                 </div>
               </div>
             </div>
 
             {/* SECTION 2: TAILORING PASSPORT */}
-            <div className="p-5 glass-inset space-y-4">
+            <div className="p-6 glass rounded-2xl border border-gold-500/20 space-y-4 shadow-sm">
               <div className="flex justify-between items-center">
-                <span className="text-xs font-semibold text-accent-600">Tailoring Passport</span>
-                <div className="flex bg-gray-100 rounded-lg p-0.5 text-xs">
+                <span className="text-xs font-semibold text-accent-950 uppercase tracking-widest">2. Measurement Passport</span>
+                <div className="flex bg-gray-100/90 rounded-xl p-1 text-xs border border-gray-200/60">
                   <button
                     type="button"
                     onClick={() => setUnit('in')}
-                    className={`px-2.5 py-1 rounded-md font-medium ${unit === 'in' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                    className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                      unit === 'in' ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm' : 'text-gray-500 hover:text-gray-800'
+                    }`}
                   >
                     Inches
                   </button>
                   <button
                     type="button"
                     onClick={() => setUnit('cm')}
-                    className={`px-2.5 py-1 rounded-md font-medium ${unit === 'cm' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500'}`}
+                    className={`px-3 py-1 rounded-lg font-semibold transition-all ${
+                      unit === 'cm' ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm' : 'text-gray-500 hover:text-gray-800'
+                    }`}
                   >
-                    CM
+                    Centimeters
                   </button>
                 </div>
               </div>
@@ -416,7 +423,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                 {measurementParameters.map((p) => (
                   <div key={p.id}>
-                    <label className="block text-[11px] font-medium text-gray-600 mb-1">
+                    <label className="block text-[11px] font-semibold text-gray-600 mb-1 truncate">
                       {p.label} ({unit})
                     </label>
                     <input
@@ -426,7 +433,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                       onChange={(e) =>
                         setMeasurementValues((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) || 0 }))
                       }
-                      className="w-full bg-white/70 border border-gray-200 p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+                      className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2 text-xs sm:text-sm font-semibold text-accent-950 text-center font-mono focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm"
                     />
                   </div>
                 ))}
@@ -434,8 +441,8 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
             </div>
 
             {/* SECTION 3: GARMENT & FINANCIAL DETAILS */}
-            <div className="p-5 glass-inset space-y-4">
-              <span className="text-xs font-semibold text-accent-600 block">Garment Specification & Pricing</span>
+            <div className="p-6 glass rounded-2xl border border-gold-500/20 space-y-4 shadow-sm">
+              <span className="text-xs font-semibold text-accent-950 uppercase tracking-widest block">3. Garment Specification & Pricing</span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
@@ -499,7 +506,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
 
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-2">
                 <div>
-                  <label className={labelClass}>Total Amount (GHS) *</label>
+                  <label className={labelClass}>Total Price (GHS) *</label>
                   <input
                     type="number"
                     required
@@ -507,12 +514,12 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                     step="0.01"
                     value={totalAmount}
                     onChange={(e) => setTotalAmount(parseFloat(e.target.value) || 0)}
-                    className={`${inputClass} font-semibold`}
+                    className={`${inputClass} font-semibold font-mono`}
                   />
                 </div>
 
                 <div>
-                  <label className={labelClass}>Paid Amount (GHS) *</label>
+                  <label className={labelClass}>Deposit Paid (GHS) *</label>
                   <input
                     type="number"
                     required
@@ -520,7 +527,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                     step="0.01"
                     value={depositPaid}
                     onChange={(e) => setDepositPaid(parseFloat(e.target.value) || 0)}
-                    className={`${inputClass} font-semibold text-emerald-700`}
+                    className={`${inputClass} font-semibold text-emerald-800 font-mono`}
                   />
                 </div>
 
@@ -549,43 +556,43 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 bg-white/70 border border-gray-200 text-xs flex justify-between items-center">
-                <span className="text-gray-500">Balance remaining (total − paid):</span>
-                <span className={`font-semibold ${remainingBalance === 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
+              <div className="p-3.5 bg-gold-50/70 border border-gold-500/25 rounded-xl text-xs flex justify-between items-center font-mono">
+                <span className="text-gray-600 font-sans">Remaining balance:</span>
+                <span className={`font-semibold text-sm ${remainingBalance === 0 ? 'text-emerald-800 font-sans' : 'text-accent-900'}`}>
                   GHS {remainingBalance.toFixed(2)}
-                  {remainingBalance === 0 && ' (Paid in Full)'}
+                  {remainingBalance === 0 && ' (Settled in Full)'}
                 </span>
               </div>
             </div>
 
             {errorMessage && (
-              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
+              <div className="p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-center gap-2">
                 <AlertCircle size={16} className="shrink-0" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <div className="pt-2 flex justify-end gap-3 border-t border-gray-200">
+            <div className="pt-2 flex justify-end gap-3 border-t border-gray-200/80">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors font-medium"
+                className="px-5 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-7 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-semibold text-sm transition-colors flex items-center gap-2"
+                className="px-7 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-accent-900/15 transition-all flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={15} className="animate-spin text-gold-300" />
                     <span>Creating Order...</span>
                   </>
                 ) : (
                   <>
-                    <UserPlus size={14} />
+                    <UserPlus size={15} className="text-gold-300" />
                     <span>Create Bespoke Order</span>
                   </>
                 )}

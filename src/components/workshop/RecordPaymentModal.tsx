@@ -34,8 +34,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [recordedSuccess, setRecordedSuccess] = useState<boolean>(false);
 
-  // Reset the form each time the modal opens for a (possibly different) order, since the
-  // parent keeps this component mounted and only toggles `isOpen`.
+  // Reset the form each time the modal opens for a (possibly different) order
   useEffect(() => {
     if (isOpen && order) {
       setPaymentMethod('Cash in Atelier');
@@ -99,16 +98,15 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             updated_at: new Date().toISOString(),
           })
           .eq('id', order.id);
-        if (error) console.error('[RecordPayment] Supabase update failed:', error);
+        if (error) console.error('[RecordPaymentModal] Payment update failed:', error);
       } catch (err) {
-        console.error('[RecordPayment] Supabase update threw:', err);
+        console.error('[RecordPaymentModal] Payment update threw:', err);
       }
 
       onPaymentRecorded(updatedOrder);
       setRecordedSuccess(true);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
-      setErrorMessage(msg);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : String(err));
     } finally {
       setIsRecording(false);
     }
@@ -118,74 +116,80 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Record Payment for #${order.id}`}
-      subtitle="Manual payment console"
-      icon={<Receipt size={17} />}
+      title={`Payment // #${order.id}`}
+      subtitle="Financial settlement & receipt console"
+      icon={<Receipt size={17} className="text-accent-800" />}
+      maxWidth="max-w-md"
     >
       <div className="p-6 space-y-5">
         {recordedSuccess ? (
-          <div className="p-6 text-center glass-inset border-emerald-200 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 size={26} />
+          <div className="p-6 text-center glass rounded-3xl border border-emerald-300 space-y-4 animate-in fade-in">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto shadow-sm">
+              <CheckCircle2 size={30} />
             </div>
-            <h4 className="text-lg font-semibold text-gray-900">Payment Recorded</h4>
-            <p className="text-sm text-gray-600 leading-relaxed">
-              GHS {amountPaid.toFixed(2)} recorded via {paymentMethod}.
-              <br />
-              Remaining Balance: GHS {calculatedRemainingBalance.toFixed(2)}
-            </p>
+            <div>
+              <h4 className="text-xl font-semibold text-accent-950 font-display">Payment Recorded</h4>
+              <p className="text-xs text-gray-500 font-sans mt-1">
+                GHS {amountPaid.toFixed(2)} received via {paymentMethod}.
+              </p>
+            </div>
 
-            <div className="pt-3 flex flex-wrap justify-center gap-2">
+            <div className="p-3.5 bg-gold-50/80 border border-gold-500/25 rounded-2xl text-xs font-mono">
+              <span className="text-gray-500 font-sans">Remaining Balance:</span>
+              <span className="font-bold text-accent-950 ml-1.5 text-sm">GHS {calculatedRemainingBalance.toFixed(2)}</span>
+            </div>
+
+            <div className="pt-2 flex flex-wrap justify-center gap-2.5">
               <button
                 type="button"
                 onClick={() => {
                   const waMsg = formatWhatsAppPaymentReceipt(order, amountPaid, paymentMethod);
                   openWhatsAppChat(order.clientPhone, waMsg);
                 }}
-                className="px-4 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-1.5"
+                className="px-4 py-2.5 bg-[#25D366] hover:bg-[#1EBE5D] text-white rounded-xl text-xs font-semibold transition-all shadow-sm flex items-center gap-2"
               >
-                <MessageCircle size={14} />
+                <MessageCircle size={15} />
                 <span>Send WhatsApp Receipt</span>
               </button>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors"
+                className="px-4 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white rounded-xl text-xs font-semibold transition-all shadow-sm"
               >
-                Done
+                Close
               </button>
             </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="p-4 glass-inset grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="p-4 glass rounded-2xl border border-gold-500/20 grid grid-cols-3 gap-2 text-center text-xs">
               <div>
-                <span className="text-gray-500 block">Total Value</span>
-                <span className="font-semibold text-gray-900 text-sm">GHS {order.totalAmount.toFixed(2)}</span>
+                <span className="text-gray-400 block text-[10px] uppercase tracking-wider">Total</span>
+                <span className="font-semibold text-gray-900 text-sm font-mono">GHS {order.totalAmount.toFixed(0)}</span>
               </div>
               <div>
-                <span className="text-gray-500 block">Paid to Date</span>
-                <span className="font-semibold text-emerald-700 text-sm">GHS {order.depositPaid.toFixed(2)}</span>
+                <span className="text-gray-400 block text-[10px] uppercase tracking-wider">Paid</span>
+                <span className="font-semibold text-emerald-800 text-sm font-mono">GHS {order.depositPaid.toFixed(0)}</span>
               </div>
               <div>
-                <span className="text-gray-500 block">Due Now</span>
-                <span className="font-semibold text-rose-600 text-sm">GHS {currentBalance.toFixed(2)}</span>
+                <span className="text-gray-400 block text-[10px] uppercase tracking-wider">Due</span>
+                <span className="font-semibold text-accent-900 text-sm font-mono">GHS {currentBalance.toFixed(0)}</span>
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1.5">Payment Method</label>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <label className="block text-xs font-semibold text-gray-700 mb-1.5 uppercase tracking-wider">Payment Method</label>
+              <div className="grid grid-cols-2 gap-2 text-xs">
                 {paymentMethods.map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => setPaymentMethod(m)}
-                    className={`p-2.5 border text-left font-medium transition-colors ${
+                    className={`p-2.5 rounded-xl border text-left font-semibold transition-all ${
                       paymentMethod === m
-                        ? 'bg-gradient-to-br from-accent-500 to-accent-800 text-white border-accent-800'
-                        : 'glass-inset text-gray-700 hover:bg-white/70'
+                        ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 border-gold-500/40 shadow-sm'
+                        : 'glass text-gray-700 hover:bg-gold-50/60 border-gray-200/80'
                     }`}
                   >
                     {m}
@@ -195,7 +199,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Amount Received (GHS) *</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1 tracking-wide">Amount Received (GHS) *</label>
               <div className="relative">
                 <input
                   type="number"
@@ -204,60 +208,60 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                   required
                   value={amountPaid}
                   onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-white/70 border border-gray-200 p-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 pl-8 transition-colors"
+                  className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 pl-9 text-xs sm:text-sm font-bold font-mono text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
                 />
-                <DollarSign size={14} className="absolute left-2.5 top-3 text-gray-400" />
+                <DollarSign size={14} className="absolute left-3 top-3 text-gold-700" />
               </div>
             </div>
 
-            <div className="p-3 glass-inset text-xs flex justify-between items-center">
-              <span className="text-gray-500">Remaining balance after payment:</span>
-              <span className={`font-semibold ${calculatedRemainingBalance === 0 ? 'text-emerald-700' : 'text-gray-900'}`}>
+            <div className="p-3.5 bg-gold-50/70 border border-gold-500/20 rounded-xl text-xs flex justify-between items-center font-mono">
+              <span className="text-gray-600 font-sans">Remaining balance after payment:</span>
+              <span className={`font-bold ${calculatedRemainingBalance === 0 ? 'text-emerald-800 font-sans' : 'text-accent-900'}`}>
                 GHS {calculatedRemainingBalance.toFixed(2)}
-                {calculatedRemainingBalance === 0 && ' (Paid in Full)'}
+                {calculatedRemainingBalance === 0 && ' (Settled)'}
               </span>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">Reference / Receipt Notes</label>
+              <label className="block text-xs font-semibold text-gray-700 mb-1 tracking-wide">Reference / Receipt Notes</label>
               <input
                 type="text"
                 value={paymentNotes}
                 onChange={(e) => setPaymentNotes(e.target.value)}
                 placeholder="e.g. In-store POS terminal auth #89421"
-                className="w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2.5 text-xs text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
               />
             </div>
 
             {errorMessage && (
-              <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-xs flex items-center gap-2">
-                <AlertCircle size={16} className="shrink-0" />
+              <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-center gap-2">
+                <AlertCircle size={15} className="shrink-0" />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <div className="pt-2 flex justify-end gap-2 border-t border-gray-200">
+            <div className="pt-2 flex justify-end gap-2.5 border-t border-gray-200/80">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100 transition-colors font-medium"
+                className="px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100 transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isRecording}
-                className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-semibold text-sm transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white font-semibold text-xs rounded-xl shadow-md shadow-accent-900/15 transition-all flex items-center gap-2"
               >
                 {isRecording ? (
                   <>
-                    <Loader2 size={14} className="animate-spin" />
+                    <Loader2 size={14} className="animate-spin text-gold-300" />
                     <span>Recording...</span>
                   </>
                 ) : (
                   <>
-                    <CreditCard size={14} />
-                    <span>Record Payment & Save</span>
+                    <CreditCard size={14} className="text-gold-300" />
+                    <span>Record Payment</span>
                   </>
                 )}
               </button>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Phone, Loader2, PackageOpen, MessageCircle, Receipt, Clock } from 'lucide-react';
+import { ArrowLeft, Phone, Loader2, PackageOpen, MessageCircle, Receipt, Clock, Sparkles } from 'lucide-react';
 import type { BespokeJobOrder } from '../../types/workshop.types';
 import { fetchAllOrders, subscribeToOrderChanges } from '../../lib/orders';
 import { DigitalJobCard } from '../workshop/DigitalJobCard';
@@ -15,9 +15,8 @@ interface ClientProfileProps {
 }
 
 /**
- * A single client's profile for staff — orders, tasks, and measurements in
- * one place. Replaces the old standalone Workshop task board (now scoped
- * per-client here instead of one shared global board).
+ * A single client's executive profile for staff — orders, tasks, and measurements in
+ * one place with modern haute couture styling.
  */
 export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientName, clientPhone, onBack }) => {
   const [orders, setOrders] = useState<BespokeJobOrder[]>([]);
@@ -58,46 +57,67 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
   };
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
       <button
         onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
+        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-white/70 hover:bg-gold-50 border border-gray-200/80 text-xs font-medium text-gray-700 hover:text-accent-900 transition-all shadow-sm"
       >
-        <ArrowLeft size={15} />
-        <span>Back to Clients</span>
+        <ArrowLeft size={14} />
+        <span>Back to Client Directory</span>
       </button>
 
-      <div className="glass p-6 flex items-center gap-4">
-        <div className="w-14 h-14 bg-accent-50 text-accent-600 flex items-center justify-center text-xl font-semibold shrink-0">
-          {clientName.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold text-gray-900 font-sans">{clientName}</h2>
-          <div className="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
-            <Phone size={13} />
-            <span>{clientPhone || 'No phone on file'}</span>
+      {/* Client Header Card */}
+      <div className="glass p-6 sm:p-7 rounded-3xl flex items-center justify-between gap-4 border border-gold-500/25 shadow-luxury">
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 flex items-center justify-center text-2xl font-display font-semibold shrink-0 shadow-md">
+            {clientName.charAt(0).toUpperCase()}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-semibold text-gold-800 bg-gold-50/90 px-2.5 py-0.5 rounded-full border border-gold-500/20 uppercase tracking-wider">
+                Bespoke Client
+              </span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 truncate mt-1">
+              {clientName}
+            </h2>
+            <div className="text-xs text-gray-500 flex items-center gap-2 mt-1 font-mono">
+              <Phone size={12} className="text-gold-700" />
+              <span>{clientPhone || 'No phone on file'}</span>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Measurements Section */}
       <div className="space-y-4">
-        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">Measurements</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-accent-900 uppercase tracking-widest flex items-center gap-1.5">
+            <Sparkles size={13} className="text-gold-600" />
+            <span>Measurement Passport</span>
+          </h3>
+        </div>
         <MeasurementVaultSync targetClientId={clientId} />
       </div>
 
+      {/* Orders Section */}
       <div className="space-y-4">
-        <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wide">Orders ({orders.length})</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-semibold text-accent-900 uppercase tracking-widest">
+            Bespoke Orders ({orders.length})
+          </h3>
+        </div>
 
         {isLoading ? (
-          <div className="p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-            <Loader2 size={16} className="animate-spin" />
-            <span>Loading orders...</span>
+          <div className="p-10 flex flex-col justify-center items-center gap-2 text-gray-500 text-sm">
+            <Loader2 size={18} className="animate-spin text-accent-700" />
+            <span>Loading bespoke orders...</span>
           </div>
         ) : orders.length === 0 ? (
-          <div className="p-10 text-center glass space-y-2">
-            <PackageOpen size={28} className="mx-auto text-gray-300" />
-            <h4 className="text-lg font-semibold text-gray-900">No orders yet</h4>
-            <p className="text-sm text-gray-500">Orders placed for this client will appear here.</p>
+          <div className="p-12 text-center glass rounded-3xl space-y-2 border border-gold-500/20">
+            <PackageOpen size={30} className="mx-auto text-gray-300" />
+            <h4 className="text-lg font-semibold text-accent-950 font-display">No bespoke orders yet</h4>
+            <p className="text-xs text-gray-500">Orders placed for this client will appear here.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -110,44 +130,46 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
                     setSelectedOrder(order);
                     setIsJobCardOpen(true);
                   }}
-                  className="glass p-5 hover:bg-white/70 transition-all cursor-pointer flex flex-col gap-3"
+                  className="glass p-5 rounded-2xl hover:border-gold-500/40 hover:shadow-luxury transition-all duration-200 cursor-pointer flex flex-col justify-between gap-3 group"
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div>
-                      <span className="text-xs text-accent-600 font-medium block">#{order.id}</span>
-                      <h4 className="text-base font-semibold text-gray-900 leading-tight mt-0.5">
+                      <span className="text-[11px] font-mono font-semibold text-accent-700 bg-accent-50/80 px-2 py-0.5 rounded-md border border-accent-200/50">
+                        #{order.id}
+                      </span>
+                      <h4 className="text-base font-semibold text-accent-950 leading-tight mt-2 font-display group-hover:text-accent-800 transition-colors">
                         {order.garmentTitle}
                       </h4>
                     </div>
-                    <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 capitalize">
+                    <span className="px-3 py-1 rounded-full text-[11px] font-semibold bg-gold-50 text-gold-900 border border-gold-500/30 capitalize shadow-sm">
                       {order.stage}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-2 text-xs text-gray-500">
-                    <Clock size={12} />
+                  <div className="flex items-center gap-2 text-xs text-gray-500 font-sans">
+                    <Clock size={13} className="text-gray-400" />
                     <span>
-                      Due {order.dueDate} &bull; Artisan: {order.assignedTailor}
+                      Due {order.dueDate} &bull; Tailor: {order.assignedTailor}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100 text-xs">
-                    <span className="text-gray-500">
+                  <div className="flex justify-between items-center pt-3 border-t border-gray-100/90 text-xs">
+                    <span className="text-gray-600 font-mono">
                       Paid GHS {order.depositPaid.toFixed(0)} / {order.totalAmount.toFixed(0)}
-                      {balance > 0 && <span className="text-rose-600 font-medium ml-1">(Due {balance.toFixed(0)})</span>}
+                      {balance > 0 && <span className="text-rose-600 font-semibold ml-1.5">(Due {balance.toFixed(0)})</span>}
                     </span>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           setSmsOrder(order);
                           setIsDirectSMSOpen(true);
                         }}
-                        title="Send WhatsApp Message"
-                        className="p-1.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-[#25D366] hover:text-white transition-colors"
+                        title="Send WhatsApp Concierge Message"
+                        className="p-2 rounded-xl bg-emerald-50 text-emerald-800 hover:bg-emerald-600 hover:text-white border border-emerald-500/20 transition-colors shadow-sm"
                       >
-                        <MessageCircle size={13} />
+                        <MessageCircle size={14} />
                       </button>
                       <button
                         onClick={(e) => {
@@ -156,9 +178,9 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
                           setIsPaymentModalOpen(true);
                         }}
                         title="Record Payment"
-                        className="p-1.5 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors text-gray-600"
+                        className="p-2 rounded-xl bg-white hover:bg-gold-50 hover:text-accent-900 border border-gray-200/80 transition-colors text-gray-600 shadow-sm"
                       >
-                        <Receipt size={13} />
+                        <Receipt size={14} />
                       </button>
                     </div>
                   </div>

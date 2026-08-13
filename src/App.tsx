@@ -106,10 +106,11 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-9 h-9 rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-semibold animate-pulse">
+      <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center gap-3">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/30 shadow-luxury flex items-center justify-center text-base font-semibold font-display animate-pulse">
           LA
         </div>
+        <p className="text-xs tracking-widest uppercase text-accent-900/60 font-medium">Maison L'Atelier</p>
       </div>
     );
   }
@@ -140,33 +141,38 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-gray-900 font-sans pb-32 relative">
+    <div className="min-h-screen bg-[#FAF8F5] text-gray-900 font-sans pb-32 relative overflow-x-hidden">
+      {/* Ambient Silk Atmosphere */}
+      <div
+        aria-hidden="true"
+        className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-b from-gold-100/30 via-accent-100/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"
+      />
 
       {/* Brand Header */}
-      <header className="glass sticky top-0 z-40 px-4 sm:px-6 py-4 border-x-0 border-t-0">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+      <header className="glass-strong sticky top-0 z-40 px-4 sm:px-8 py-3.5 border-b border-gold-500/20 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
 
           {/* Brand Insignia */}
-          <div className="flex items-center gap-3 text-center md:text-left">
-            <div className="w-9 h-9 bg-gradient-to-br from-accent-500 to-accent-800 text-white flex items-center justify-center text-sm font-semibold font-display">
+          <div className="flex items-center gap-3.5 text-center md:text-left">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-sm flex items-center justify-center text-sm font-semibold font-display tracking-wider">
               LA
             </div>
             <div>
-              <h1 className="text-lg leading-none">{businessName}</h1>
-              <p className="text-xs text-gray-500 mt-1 font-sans">Bespoke Ghanaian tailoring & workshop system</p>
+              <h1 className="text-xl sm:text-2xl leading-none text-accent-950 font-display font-semibold tracking-tight">{businessName}</h1>
+              <p className="text-[11px] text-gray-500 mt-1 font-sans tracking-wide uppercase">Haute Couture & Bespoke Tailoring</p>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="flex flex-wrap items-center gap-2 justify-center">
+          <div className="flex flex-wrap items-center gap-2.5 justify-center">
 
             {/* Quick Intake Button (Tailor/Admin) — gated on the real account role */}
             {isStaff && (
               <button
                 onClick={() => setIsIntakeOpen(true)}
-                className="px-3.5 py-2 text-sm text-white bg-gradient-to-br from-accent-500 to-accent-800 hover:from-accent-600 hover:to-accent-800 font-medium transition-colors flex items-center gap-1.5"
+                className="px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 hover:to-accent-500 rounded-xl shadow-md shadow-accent-900/15 hover:shadow-lg transition-all duration-200 flex items-center gap-2"
               >
-                <UserPlus size={14} />
+                <UserPlus size={15} className="text-gold-300" />
                 <span>New Intake</span>
               </button>
             )}
@@ -174,24 +180,27 @@ function App() {
             {/* Track Garment Passport Action */}
             <button
               onClick={() => setIsOrderTrackerOpen(true)}
-              className="glass-inset px-3.5 py-2 text-sm text-gray-700 hover:bg-white/70 flex items-center gap-1.5 transition-colors"
+              className="glass-inset px-3.5 py-2 text-xs font-medium text-gray-700 hover:text-accent-900 hover:bg-white/80 rounded-xl border border-gray-200/80 flex items-center gap-1.5 transition-all duration-200 shadow-sm"
             >
-              <Search size={14} />
+              <Search size={14} className="text-accent-700" />
               <span>Track Order</span>
             </button>
 
             {/* Signed-in Identity & Sign Out */}
-            <div className="flex items-center gap-2 pl-1 text-sm">
-              <span className="hidden sm:inline text-gray-500 max-w-[140px] truncate">
-                {profile?.full_name || session.user.email}
-              </span>
+            <div className="flex items-center gap-2 pl-1 text-xs">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/60 border border-gray-200/60 shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span className="text-gray-700 font-medium max-w-[140px] truncate">
+                  {profile?.full_name || session.user.email}
+                </span>
+              </div>
               <button
                 onClick={() => signOut()}
-                className="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors text-gray-600"
+                className="w-8 h-8 rounded-xl bg-white/70 hover:bg-rose-50 hover:text-rose-700 border border-gray-200/70 flex items-center justify-center transition-colors text-gray-500 shadow-sm"
                 aria-label="Sign out"
                 title="Sign out"
               >
-                <LogOut size={16} />
+                <LogOut size={15} />
               </button>
             </div>
           </div>
@@ -199,7 +208,7 @@ function App() {
       </header>
 
       {/* Main Content Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
 
         {isStaff && activeTab === 'dashboard' && <StaffDashboard />}
         {isStaff && activeTab === 'clients' && <Clients />}

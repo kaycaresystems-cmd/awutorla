@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Lock,
   Loader2,
+  Ruler,
 } from 'lucide-react';
 import type { MeasurementParameter } from '../../types/workshop.types';
 import { supabase } from '../../lib/supabase';
@@ -98,104 +99,114 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
     setSyncSuccess(false);
     setErrorMessage(null);
 
-    const nowIso = new Date().toISOString();
+    const now = new Date().toISOString();
 
     try {
+      cacheClientMeasurements({
+        unit,
+        values,
+        notes: notes.trim() || undefined,
+        updatedAt: now,
+      });
+
       const { error: headerError } = await (supabase.from('client_measurements') as any).upsert(
-        { client_id: clientId, unit, notes, updated_at: nowIso },
+        {
+          client_id: clientId,
+          unit,
+          notes: notes.trim() || null,
+          updated_at: now,
+        },
         { onConflict: 'client_id' }
       );
       if (headerError) throw headerError;
 
-      const rows = parameters
+      const valueRows = parameters
         .filter((p) => values[p.key] !== undefined && !Number.isNaN(values[p.key]))
-        .map((p) => ({ client_id: clientId, parameter_id: p.id, value: values[p.key], updated_at: nowIso }));
+        .map((p) => ({
+          client_id: clientId,
+          parameter_id: p.id,
+          value: values[p.key],
+          updated_at: now,
+        }));
 
-      if (rows.length > 0) {
-        const { error: valuesError } = await (supabase.from('client_measurement_values') as any).upsert(rows, {
-          onConflict: 'client_id,parameter_id',
-        });
+      if (valueRows.length > 0) {
+        const { error: valuesError } = await (supabase.from('client_measurement_values') as any).upsert(
+          valueRows,
+          { onConflict: 'client_id,parameter_id' }
+        );
         if (valuesError) throw valuesError;
       }
 
-      cacheClientMeasurements(clientId, {
-        clientId,
-        clientName: '',
-        clientPhone: '',
-        unit,
-        values,
-        notes,
-        updatedAt: nowIso,
-      });
-      setSyncSuccess(true);
-    } catch (err) {
-      console.error('[MeasurementVaultSync] Supabase sync failed:', err);
-      setErrorMessage('Could not sync to the cloud. Please try again.');
-    } finally {
       setIsSyncing(false);
+      setSyncSuccess(true);
+      setTimeout(() => setSyncSuccess(false), 3000);
+    } catch (err: unknown) {
+      console.error('[MeasurementVaultSync] Save threw:', err);
+      setIsSyncing(false);
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to save measurements.');
     }
   };
 
   if (isLoading) {
     return (
-      <div className="glass p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-        <Loader2 size={16} className="animate-spin" />
-        <span>Loading measurements...</span>
+      <div className="p-12 flex flex-col justify-center items-center gap-2 text-gray-500 text-sm">
+        <Loader2 size={20} className="animate-spin text-accent-700" />
+        <span>Synchronizing measurement vault...</span>
       </div>
     );
   }
 
   return (
-    <div className="glass p-6 sm:p-8 space-y-6">
+    <div className="p-6 sm:p-8 glass rounded-3xl border border-gold-500/25 shadow-luxury space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-accent-50 text-accent-600 flex items-center justify-center">
-            <Lock size={16} />
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200/80 pb-5">
+        <div className="flex items-center gap-3.5">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 flex items-center justify-center shadow-sm">
+            <Lock size={18} />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-medium text-gray-500">Sizing Vault</span>
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
-                RLS Encrypted
+              <span className="text-xs font-semibold text-accent-900 uppercase tracking-widest">Master Vault</span>
+              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-full text-[10px] font-semibold">
+                RLS Protected
               </span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 font-sans">Client Tailoring Vault</h3>
+            <h3 className="text-xl sm:text-2xl font-bold text-accent-950 font-display">Client Tailoring Passport</h3>
           </div>
         </div>
 
         {/* Unit Switcher */}
-        <div className="flex items-center gap-1 bg-gray-100 p-1 self-stretch sm:self-auto justify-center">
+        <div className="flex items-center gap-1 bg-gray-100/90 p-1 rounded-xl border border-gray-200/60 self-stretch sm:self-auto justify-center">
           <button
             onClick={() => handleUnitToggle('in')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              unit === 'in' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+              unit === 'in' ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
             Inches
           </button>
           <button
             onClick={() => handleUnitToggle('cm')}
-            className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
-              unit === 'cm' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
+              unit === 'cm' ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
-            Metric
+            Metric (cm)
           </button>
         </div>
       </div>
 
       {/* Dynamic Measurement Parameter Grid */}
       {parameters.length === 0 ? (
-        <div className="p-4 glass-inset text-sm text-gray-500 text-center">
-          No measurement parameters have been set up yet.
+        <div className="p-6 glass rounded-2xl text-xs text-gray-500 text-center">
+          No measurement parameters configured in the master settings.
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {parameters.map((p) => (
-            <div key={p.id} className="p-3 glass-inset text-center">
-              <label htmlFor={`measurement-${p.key}`} className="text-[11px] text-gray-500 block mb-1">
+            <div key={p.id} className="p-3.5 glass rounded-2xl text-center border border-gray-200/70 hover:border-gold-500/30 transition-all shadow-sm">
+              <label htmlFor={`measurement-${p.key}`} className="text-[11px] font-semibold text-gray-500 block mb-1 truncate">
                 {p.label}
               </label>
               <input
@@ -204,63 +215,63 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
                 step="0.1"
                 value={values[p.key] ?? ''}
                 onChange={(e) => handleValueChange(p.key, e.target.value)}
-                className="w-full bg-white/70 border border-gray-200 p-1.5 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+                className="w-full bg-white/90 border border-gray-200/90 rounded-xl p-2 text-sm font-bold font-mono text-accent-950 text-center focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm"
               />
-              <span className="text-[10px] text-gray-400 block mt-0.5">{unit}</span>
+              <span className="text-[10px] text-gold-700 font-mono block mt-1 uppercase">{unit}</span>
             </div>
           ))}
         </div>
       )}
 
       {/* Posture & Fitting Notes */}
-      <div className="space-y-2">
-        <label className="block text-xs font-medium text-gray-600">Fitting & Posture Notes</label>
+      <div className="space-y-1.5">
+        <label className="block text-xs font-semibold text-gray-700 uppercase tracking-wider">Fitting & Posture Notes</label>
         <textarea
           rows={2}
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Higher left shoulder posture, preference for high-waisted toile drape..."
-          className="w-full glass-inset p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors leading-relaxed"
+          className="w-full bg-white/90 border border-gray-200/90 rounded-2xl p-3.5 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 leading-relaxed shadow-sm transition-all"
         />
       </div>
 
       {/* Success Notification Banner */}
       {syncSuccess && !errorMessage && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-xs flex items-center gap-2">
-          <CheckCircle2 size={16} className="shrink-0" />
-          <span>Body profile synchronized with the database.</span>
+        <div className="p-3.5 bg-emerald-50 border border-emerald-300 text-emerald-900 rounded-2xl text-xs font-semibold flex items-center gap-2 animate-in fade-in shadow-sm">
+          <CheckCircle2 size={16} className="shrink-0 text-emerald-600" />
+          <span>Tailoring passport synchronized successfully with atelier database.</span>
         </div>
       )}
 
       {/* Sync Error Banner */}
       {errorMessage && (
-        <div className="p-3 bg-accent-50 border border-accent-100 text-gray-900 rounded-lg text-xs flex items-center gap-2">
-          <ShieldCheck size={16} className="shrink-0 text-accent-600" />
+        <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-2xl text-xs flex items-center gap-2">
+          <ShieldCheck size={16} className="shrink-0 text-rose-600" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {/* Action Footer */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 border-t border-gray-200">
-        <div className="text-xs text-gray-500 flex items-center gap-1.5">
-          <ShieldCheck size={14} className="text-emerald-600" />
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 border-t border-gray-200/80">
+        <div className="text-xs text-gray-500 flex items-center gap-2">
+          <ShieldCheck size={15} className="text-emerald-600" />
           <span>Linked to account — {user?.email || 'Not signed in'}</span>
         </div>
 
         <button
           onClick={handleSaveToSupabase}
           disabled={isSyncing || !clientId}
-          className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full sm:w-auto px-6 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-accent-900/15 flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isSyncing ? (
             <>
-              <Loader2 size={15} className="animate-spin" />
+              <Loader2 size={15} className="animate-spin text-gold-300" />
               <span>Syncing...</span>
             </>
           ) : (
             <>
-              <Save size={15} />
-              <span>Save & Sync</span>
+              <Save size={15} className="text-gold-300" />
+              <span>Save & Sync Passport</span>
             </>
           )}
         </button>

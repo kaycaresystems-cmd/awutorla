@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Search, User, Phone, Loader2, UserPlus } from 'lucide-react';
+import { Search, User, Phone, Loader2, UserPlus, Users, ArrowRight } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ClientProfile } from '../components/clients/ClientProfile';
 import { QuickIntakeModal } from '../components/workshop/QuickIntakeModal';
@@ -53,45 +53,55 @@ export const Clients: React.FC = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div className="text-center space-y-3 max-w-xl mx-auto">
-        <span className="text-xs font-medium text-accent-600">Client Directory</span>
-        <h2 className="text-2xl sm:text-3xl">Clients</h2>
-        <p className="text-sm text-gray-500">
-          Search and open a client's profile to review their orders and measurements.
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
+      {/* Title Section */}
+      <div className="text-center space-y-2 max-w-xl mx-auto">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-accent-800 bg-accent-50/80 border border-accent-200/60 shadow-sm">
+          <Users size={13} className="text-gold-600" />
+          <span>Client Roster</span>
+        </div>
+        <h2 className="text-3xl sm:text-4xl text-accent-950 font-display font-semibold tracking-tight">Clients</h2>
+        <p className="text-xs sm:text-sm text-gray-500 font-sans">
+          Search and manage bespoke profiles, measurement passports, and order histories.
         </p>
       </div>
 
+      {/* Action and Search Bar */}
       <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
         <div className="relative flex-1">
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name or phone..."
-            className="w-full glass-inset pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+            placeholder="Search by client name or phone number..."
+            className="w-full glass-inset pl-10 pr-4 py-3 text-sm text-gray-900 placeholder-gray-400 rounded-2xl border border-gray-200/80 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500/50 shadow-sm transition-all"
           />
-          <Search size={15} className="absolute left-3 top-3 text-gray-400" />
+          <Search size={16} className="absolute left-3.5 top-3.5 text-gray-400" />
         </div>
         <button
           onClick={() => setIsIntakeOpen(true)}
-          className="px-4 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-medium text-sm transition-colors flex items-center justify-center gap-1.5 shrink-0"
+          className="px-5 py-3 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 hover:to-accent-500 text-white font-semibold text-xs sm:text-sm rounded-2xl shadow-md shadow-accent-900/15 transition-all duration-200 flex items-center justify-center gap-2 shrink-0 hover:scale-[1.02]"
         >
-          <UserPlus size={14} />
+          <UserPlus size={15} className="text-gold-300" />
           <span>New Client</span>
         </button>
       </div>
 
+      {/* Content Area */}
       {isLoading ? (
-        <div className="p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-          <Loader2 size={16} className="animate-spin" />
-          <span>Loading clients...</span>
+        <div className="p-16 flex flex-col justify-center items-center gap-3 text-gray-500 text-sm">
+          <Loader2 size={20} className="animate-spin text-accent-700" />
+          <span>Loading client directory...</span>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="p-12 text-center glass space-y-2">
-          <User size={28} className="mx-auto text-gray-300" />
-          <h4 className="text-lg font-semibold text-gray-900">No clients found</h4>
-          <p className="text-sm text-gray-500">Try a different search, or register a new client.</p>
+        <div className="p-12 text-center glass rounded-3xl space-y-3 border border-gold-500/20">
+          <div className="w-14 h-14 mx-auto rounded-2xl bg-gold-50 text-gold-700 flex items-center justify-center border border-gold-500/20 shadow-sm">
+            <User size={26} />
+          </div>
+          <h4 className="text-xl font-semibold text-accent-950 font-display">No clients found</h4>
+          <p className="text-xs sm:text-sm text-gray-500 max-w-sm mx-auto">
+            {searchQuery ? `No client matches "${searchQuery}".` : 'Register your first bespoke client to begin.'}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -99,17 +109,25 @@ export const Clients: React.FC = () => {
             <button
               key={c.id}
               onClick={() => setSelectedClientId(c.id)}
-              className="text-left glass p-5 hover:bg-white/70 transition-all flex items-center gap-3"
+              className="text-left glass p-5 rounded-2xl hover:border-gold-500/40 hover:shadow-luxury transition-all duration-200 flex items-center justify-between gap-3 group"
             >
-              <div className="w-10 h-10 bg-accent-50 text-accent-600 flex items-center justify-center shrink-0 font-semibold">
-                {(c.full_name || '?').charAt(0).toUpperCase()}
-              </div>
-              <div className="min-w-0">
-                <div className="text-sm font-semibold text-gray-900 truncate">{c.full_name || 'Unnamed Client'}</div>
-                <div className="text-xs text-gray-500 flex items-center gap-1">
-                  <Phone size={11} />
-                  <span>{c.phone_number || 'No phone on file'}</span>
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/30 flex items-center justify-center shrink-0 font-display font-semibold text-sm shadow-sm group-hover:scale-105 transition-transform">
+                  {(c.full_name || '?').charAt(0).toUpperCase()}
                 </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-accent-950 truncate group-hover:text-accent-800 transition-colors">
+                    {c.full_name || 'Unnamed Client'}
+                  </div>
+                  <div className="text-xs text-gray-500 flex items-center gap-1.5 mt-0.5 font-mono">
+                    <Phone size={11} className="text-gold-700" />
+                    <span>{c.phone_number || 'No phone'}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="w-7 h-7 rounded-lg bg-gray-50 group-hover:bg-gold-50 text-gray-400 group-hover:text-accent-800 flex items-center justify-center transition-colors shrink-0">
+                <ArrowRight size={13} />
               </div>
             </button>
           ))}

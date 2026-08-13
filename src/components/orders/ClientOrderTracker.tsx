@@ -6,6 +6,9 @@ import {
   AlertCircle,
   Loader2,
   Phone,
+  ShieldCheck,
+  Calendar,
+  Clock,
 } from 'lucide-react';
 import type { BespokeJobOrder } from '../../types/workshop.types';
 import { FabricStatusBadge } from '../ui/FabricStatusBadge';
@@ -37,14 +40,6 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Authenticated mode: load the live order list this account can see (RLS-scoped —
-  // own orders for a client, all orders for staff), falling back to the offline cache
-  // when the network is unavailable. Runs each time the tracker opens or a new
-  // deep-linked order ID arrives, since the parent keeps this component mounted.
-  //
-  // Anonymous mode (no session, reached via a public `?track=` link): there is no
-  // list to preload — looking up an order requires the order ID *and* phone number
-  // together (see handleSearch), so we just prefill the ID and wait for input.
   React.useEffect(() => {
     if (!isOpen) return;
     setErrorMessage(null);
@@ -137,25 +132,31 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Order Tracker" subtitle="Client order tracking" icon={<Sparkles size={17} />} maxWidth="max-w-4xl">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Garment Passport"
+      subtitle="Bespoke order tracker & authenticity record"
+      icon={<Sparkles size={18} className="text-gold-600" />}
+      maxWidth="max-w-4xl"
+    >
       {/* Search Bar — pinned while the order details below scroll */}
-      <div className="sticky top-0 z-10 p-5 bg-white/80 backdrop-blur-md border-b border-gray-200">
+      <div className="sticky top-0 z-10 p-5 bg-white/90 backdrop-blur-xl border-b border-gray-200/80">
         {isAnonymous && (
-          <p className="mb-3 text-xs text-gray-500 leading-relaxed">
-            Enter your order ID and the phone number on file to view your order —
-            both are required to keep your order private.
+          <p className="mb-3 text-xs text-gray-500 leading-relaxed font-sans">
+            Enter your bespoke order ID and registered phone number to verify your garment passport.
           </p>
         )}
-        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2.5">
           <div className="relative flex-1">
             <input
               type="text"
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
-              placeholder={isAnonymous ? 'Order ID (e.g. ORD-BESPOKE-884)' : 'Order ID, phone number, or name...'}
-              className="w-full bg-white/70 border border-gray-200 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+              placeholder={isAnonymous ? 'Order ID (e.g. ORD-BESPOKE-884)' : 'Order ID, phone number, or client name...'}
+              className="w-full bg-white/95 border border-gray-200/90 pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
             />
-            <Search size={15} className="absolute left-3 top-3 text-gray-400" />
+            <Search size={15} className="absolute left-3.5 top-3 text-gray-400" />
           </div>
           {isAnonymous && (
             <div className="relative flex-1">
@@ -164,90 +165,94 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
                 value={trackPhone}
                 onChange={(e) => setTrackPhone(e.target.value)}
                 placeholder="Phone number (e.g. 024XXXXXXX)"
-                className="w-full bg-white/70 border border-gray-200 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/95 border border-gray-200/90 pl-10 pr-4 py-2.5 rounded-xl text-xs sm:text-sm text-gray-900 font-mono placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-gold-500/30 focus:border-gold-500 shadow-sm transition-all"
               />
-              <Phone size={14} className="absolute left-3 top-3 text-gray-400" />
+              <Phone size={14} className="absolute left-3.5 top-3 text-gold-700" />
             </div>
           )}
           <button
             type="submit"
             disabled={isLoading}
-            className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors disabled:opacity-60"
+            className="px-6 py-2.5 bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-md shadow-accent-900/15 disabled:opacity-60 shrink-0"
           >
             Track Order
           </button>
         </form>
 
         {errorMessage && (
-          <div className="mt-2 text-rose-600 text-xs flex items-center gap-1.5">
-            <AlertCircle size={14} />
+          <div className="mt-3 p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs flex items-center gap-2">
+            <AlertCircle size={14} className="shrink-0" />
             <span>{errorMessage}</span>
           </div>
         )}
       </div>
 
       {isLoading && (
-        <div className="p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
-          <Loader2 size={16} className="animate-spin" />
-          <span>Loading order...</span>
+        <div className="p-12 flex flex-col justify-center items-center gap-2 text-gray-500 text-sm">
+          <Loader2 size={20} className="animate-spin text-accent-700" />
+          <span>Locating garment passport...</span>
         </div>
       )}
 
       {/* Order Details Body */}
       {!isLoading && activeOrder && (
-        <div className="p-6 space-y-6">
+        <div className="p-6 sm:p-7 space-y-6 animate-in fade-in">
 
-          {/* Top Overview */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium text-accent-600">
+          {/* Top Overview Passport Card */}
+          <div className="p-6 glass rounded-3xl border border-gold-500/30 shadow-luxury relative overflow-hidden flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="relative z-10">
+              <div className="flex items-center gap-2 mb-1.5">
+                <span className="text-xs font-mono font-bold text-accent-800 bg-accent-50/90 px-2.5 py-0.5 rounded-md border border-accent-200/60">
                   #{activeOrder.id}
                 </span>
-                <span className="px-2 py-0.5 rounded-full bg-gray-100 text-[10px] font-medium text-gray-700">
-                  Bespoke
+                <span className="px-2.5 py-0.5 rounded-full bg-gold-50 text-[10px] font-semibold text-gold-800 border border-gold-500/30 uppercase tracking-wider">
+                  Haute Couture
                 </span>
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 leading-tight">
+              <h3 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 leading-tight">
                 {activeOrder.garmentTitle}
               </h3>
-              <p className="text-sm text-gray-500 mt-1">{activeOrder.garmentSubtitle}</p>
+              <p className="text-xs sm:text-sm text-gray-500 mt-1 font-sans">{activeOrder.garmentSubtitle}</p>
             </div>
 
-            <FabricStatusBadge status={getBadgeStatus(activeOrder.stage)} orderId={activeOrder.id} />
+            <FabricStatusBadge status={getBadgeStatus(activeOrder.stage)} orderId={activeOrder.id} className="relative z-10" />
           </div>
 
-          <div className="p-4 glass-inset text-sm space-y-2">
-            <div className="flex justify-between border-b border-gray-100 pb-1.5">
-              <span className="text-gray-500 text-xs">Client</span>
-              <span className="font-medium text-gray-900">{activeOrder.clientName}</span>
+          {/* Specifications Grid */}
+          <div className="p-5 glass rounded-2xl border border-gold-500/20 text-xs sm:text-sm space-y-2.5 shadow-sm">
+            <div className="flex justify-between border-b border-gray-100/80 pb-2">
+              <span className="text-gray-400 uppercase tracking-wider text-[11px]">Client Dossier</span>
+              <span className="font-semibold text-accent-950 font-display text-base">{activeOrder.clientName}</span>
             </div>
-            <div className="flex justify-between border-b border-gray-100 pb-1.5">
-              <span className="text-gray-500 text-xs">Assigned Tailor</span>
-              <span className="font-medium text-gray-900">{activeOrder.assignedTailor}</span>
+            <div className="flex justify-between border-b border-gray-100/80 pb-2">
+              <span className="text-gray-400 uppercase tracking-wider text-[11px]">Assigned Master Artisan</span>
+              <span className="font-semibold text-gray-900">{activeOrder.assignedTailor}</span>
             </div>
-            <div className="flex justify-between border-b border-gray-100 pb-1.5">
-              <span className="text-gray-500 text-xs">Fabric</span>
-              <span className="text-gray-900">{activeOrder.fabricType}</span>
+            <div className="flex justify-between border-b border-gray-100/80 pb-2">
+              <span className="text-gray-400 uppercase tracking-wider text-[11px]">Textile Weave</span>
+              <span className="text-gray-900 font-medium">{activeOrder.fabricType}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-gray-500 text-xs">Estimated Completion</span>
-              <span className="font-medium text-gray-900">{activeOrder.dueDate}</span>
+            <div className="flex justify-between items-center">
+              <span className="text-gray-400 uppercase tracking-wider text-[11px]">Estimated Ready Date</span>
+              <span className="font-semibold text-gold-800 font-mono flex items-center gap-1.5">
+                <Calendar size={13} />
+                <span>{activeOrder.dueDate}</span>
+              </span>
             </div>
           </div>
 
           {/* Financial Status & Balance Settlement */}
-          <div className="p-5 glass text-sm space-y-4">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+          <div className="p-6 glass rounded-2xl border border-gold-500/20 text-xs sm:text-sm space-y-4 shadow-sm">
+            <div className="flex justify-between items-center border-b border-gray-100/80 pb-3">
               <div>
-                <span className="text-gray-500 text-xs block">Total Bespoke Investment</span>
-                <span className="text-xl font-semibold text-gray-900">
+                <span className="text-gray-400 text-[10px] uppercase tracking-wider block">Bespoke Investment</span>
+                <span className="text-xl sm:text-2xl font-bold text-accent-950 font-display">
                   GHS {activeOrder.totalAmount.toFixed(2)}
                 </span>
               </div>
               <div className="text-right">
-                <span className="text-gray-500 text-xs block">Deposit Received</span>
-                <span className="text-emerald-600 font-semibold text-lg">
+                <span className="text-gray-400 text-[10px] uppercase tracking-wider block">Deposit Paid</span>
+                <span className="text-emerald-800 font-bold text-lg sm:text-xl font-mono">
                   GHS {activeOrder.depositPaid.toFixed(2)}
                 </span>
               </div>
@@ -255,19 +260,20 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
               <div>
-                <span className="text-gray-500 text-xs block">Balance Remaining</span>
-                <span className="text-rose-600 font-semibold text-lg">
+                <span className="text-gray-400 text-[10px] uppercase tracking-wider block">Balance Remaining</span>
+                <span className="text-accent-900 font-bold text-lg sm:text-xl font-mono">
                   GHS {(activeOrder.totalAmount - activeOrder.depositPaid).toFixed(2)}
                 </span>
               </div>
 
               {activeOrder.totalAmount - activeOrder.depositPaid > 0 ? (
-                <span className="px-3 py-1.5 bg-gray-100 text-gray-700 rounded-lg text-xs text-center sm:text-right leading-relaxed">
-                  Please visit or call the atelier to settle your remaining balance.
+                <span className="px-3.5 py-1.5 bg-gold-50/80 text-gold-900 border border-gold-500/30 rounded-xl text-xs font-medium text-center sm:text-right leading-relaxed shadow-sm">
+                  Please visit the atelier reception or contact concierge to settle remaining balance.
                 </span>
               ) : (
-                <span className="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-xs font-semibold">
-                  Paid in Full
+                <span className="px-3.5 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-xl text-xs font-semibold shadow-sm flex items-center gap-1.5">
+                  <ShieldCheck size={14} className="text-emerald-600" />
+                  <span>Settled in Full</span>
                 </span>
               )}
             </div>
@@ -275,21 +281,23 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
 
           {/* Production Milestone Journey */}
           <div className="space-y-3">
-            <span className="text-xs font-medium text-gray-500 block">Production Journey</span>
-            <div className="p-4 glass-inset space-y-3">
+            <span className="text-xs font-semibold text-accent-950 uppercase tracking-widest block">Artisan Production Journey</span>
+            <div className="p-5 glass rounded-2xl border border-gold-500/20 space-y-3.5 shadow-sm">
               {activeOrder.stageHistory.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3 border-b border-gray-100 pb-2.5 last:border-0 last:pb-0">
-                  <CheckCircle2 size={15} className="text-emerald-600 mt-0.5 shrink-0" />
-                  <div className="flex-1">
+                <div key={idx} className="flex items-start gap-3 border-b border-gray-100/80 pb-3 last:border-0 last:pb-0">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                    <CheckCircle2 size={15} />
+                  </div>
+                  <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center">
-                      <span className="font-medium text-gray-900 capitalize text-sm">
+                      <span className="font-semibold text-accent-950 capitalize text-xs sm:text-sm">
                         {item.stage}
                       </span>
-                      <span className="text-xs text-gray-400">
+                      <span className="text-[11px] text-gray-400 font-mono">
                         {item.completedAt ? new Date(item.completedAt).toLocaleDateString() : 'Active'}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm">{item.notes}</p>
+                    <p className="text-gray-600 text-xs mt-0.5">{item.notes}</p>
                   </div>
                 </div>
               ))}
