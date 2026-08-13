@@ -4,7 +4,7 @@ import type { AppSettings } from '../../lib/settings';
 import { fetchAppSettings, updateAppSetting, DEFAULT_APP_SETTINGS } from '../../lib/settings';
 
 const inputClass =
-  'w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
+  'w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
 const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
 
 export const BusinessSettingsEditor: React.FC = () => {
@@ -131,7 +131,7 @@ export const BusinessSettingsEditor: React.FC = () => {
         <button
           type="submit"
           disabled={isSaving}
-          className="px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
         >
           {isSaving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
           <span>Save Settings</span>

@@ -23,7 +23,7 @@ export const FloatingDock: React.FC<FloatingDockProps> = ({
   return (
     <nav
       aria-label="Primary navigation"
-      className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-2 py-2 bg-white border border-gray-200 rounded-full shadow-popover ${className}`}
+      className={`glass-strong fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-2 py-2 ${className}`}
     >
       {items.map((item) => {
         const isActive = item.id === activeId;

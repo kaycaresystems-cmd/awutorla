@@ -67,12 +67,12 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
         <span>Back to Clients</span>
       </button>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 flex items-center gap-4">
-        <div className="w-14 h-14 rounded-full bg-accent-50 text-accent-600 flex items-center justify-center text-xl font-semibold shrink-0">
+      <div className="glass p-6 flex items-center gap-4">
+        <div className="w-14 h-14 bg-accent-50 text-accent-600 flex items-center justify-center text-xl font-semibold shrink-0">
           {clientName.charAt(0).toUpperCase()}
         </div>
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">{clientName}</h2>
+          <h2 className="text-xl font-semibold text-gray-900 font-sans">{clientName}</h2>
           <div className="text-sm text-gray-500 flex items-center gap-1.5 mt-0.5">
             <Phone size={13} />
             <span>{clientPhone || 'No phone on file'}</span>
@@ -94,7 +94,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
             <span>Loading orders...</span>
           </div>
         ) : orders.length === 0 ? (
-          <div className="p-10 text-center bg-white rounded-xl border border-gray-200 space-y-2">
+          <div className="p-10 text-center glass space-y-2">
             <PackageOpen size={28} className="mx-auto text-gray-300" />
             <h4 className="text-lg font-semibold text-gray-900">No orders yet</h4>
             <p className="text-sm text-gray-500">Orders placed for this client will appear here.</p>
@@ -110,7 +110,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
                     setSelectedOrder(order);
                     setIsJobCardOpen(true);
                   }}
-                  className="bg-white rounded-xl p-5 border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all cursor-pointer flex flex-col gap-3"
+                  className="glass p-5 hover:bg-white/70 transition-all cursor-pointer flex flex-col gap-3"
                 >
                   <div className="flex justify-between items-start gap-3">
                     <div>

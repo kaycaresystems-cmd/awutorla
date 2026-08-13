@@ -138,7 +138,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
 
   if (isLoading) {
     return (
-      <div className="bg-white rounded-xl p-8 border border-gray-200 flex justify-center items-center gap-2 text-gray-500 text-sm">
+      <div className="glass p-8 flex justify-center items-center gap-2 text-gray-500 text-sm">
         <Loader2 size={16} className="animate-spin" />
         <span>Loading measurements...</span>
       </div>
@@ -146,27 +146,27 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
   }
 
   return (
-    <div className="bg-white rounded-xl p-6 sm:p-8 border border-gray-200 space-y-6">
+    <div className="glass p-6 sm:p-8 space-y-6">
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-5">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-200 pb-5">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center">
+          <div className="w-9 h-9 bg-accent-50 text-accent-600 flex items-center justify-center">
             <Lock size={16} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-medium text-gray-500">Sizing Vault</span>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
+              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-medium">
                 RLS Encrypted
               </span>
             </div>
-            <h3 className="text-xl font-semibold text-gray-900">Client Tailoring Vault</h3>
+            <h3 className="text-xl font-semibold text-gray-900 font-sans">Client Tailoring Vault</h3>
           </div>
         </div>
 
         {/* Unit Switcher */}
-        <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg self-stretch sm:self-auto justify-center">
+        <div className="flex items-center gap-1 bg-gray-100 p-1 self-stretch sm:self-auto justify-center">
           <button
             onClick={() => handleUnitToggle('in')}
             className={`px-3 py-1 rounded-md text-xs font-medium transition-colors ${
@@ -188,13 +188,13 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
 
       {/* Dynamic Measurement Parameter Grid */}
       {parameters.length === 0 ? (
-        <div className="p-4 bg-gray-50 border border-gray-100 rounded-lg text-sm text-gray-500 text-center">
+        <div className="p-4 glass-inset text-sm text-gray-500 text-center">
           No measurement parameters have been set up yet.
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {parameters.map((p) => (
-            <div key={p.id} className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
+            <div key={p.id} className="p-3 glass-inset text-center">
               <label htmlFor={`measurement-${p.key}`} className="text-[11px] text-gray-500 block mb-1">
                 {p.label}
               </label>
@@ -204,7 +204,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
                 step="0.1"
                 value={values[p.key] ?? ''}
                 onChange={(e) => handleValueChange(p.key, e.target.value)}
-                className="w-full bg-white border border-gray-200 rounded-md p-1.5 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+                className="w-full bg-white/70 border border-gray-200 p-1.5 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
               />
               <span className="text-[10px] text-gray-400 block mt-0.5">{unit}</span>
             </div>
@@ -220,7 +220,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           placeholder="e.g. Higher left shoulder posture, preference for high-waisted toile drape..."
-          className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors leading-relaxed"
+          className="w-full glass-inset p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors leading-relaxed"
         />
       </div>
 
@@ -241,7 +241,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
       )}
 
       {/* Action Footer */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 border-t border-gray-100">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 border-t border-gray-200">
         <div className="text-xs text-gray-500 flex items-center gap-1.5">
           <ShieldCheck size={14} className="text-emerald-600" />
           <span>Linked to account — {user?.email || 'Not signed in'}</span>
@@ -250,7 +250,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
         <button
           onClick={handleSaveToSupabase}
           disabled={isSyncing || !clientId}
-          className="w-full sm:w-auto px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+          className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
         >
           {isSyncing ? (
             <>

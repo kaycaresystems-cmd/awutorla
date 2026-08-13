@@ -18,8 +18,8 @@ interface StatTileProps {
 }
 
 const StatTile: React.FC<StatTileProps> = ({ icon, label, value }) => (
-  <div className="bg-white p-5 rounded-xl border border-gray-200 flex items-center gap-4">
-    <div className="w-10 h-10 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center shrink-0">
+  <div className="glass p-5 flex items-center gap-4">
+    <div className="w-10 h-10 bg-accent-50 text-accent-600 flex items-center justify-center shrink-0">
       {icon}
     </div>
     <div>
@@ -39,8 +39,8 @@ interface RankedBarListProps {
 const RankedBarList: React.FC<RankedBarListProps> = ({ title, rows }) => {
   const max = Math.max(1, ...rows.map((r) => r.count));
   return (
-    <div className="bg-white p-6 rounded-xl border border-gray-200 space-y-4">
-      <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
+    <div className="glass p-6 space-y-4">
+      <h3 className="text-sm font-semibold text-gray-900 font-sans">{title}</h3>
       {rows.length === 0 ? (
         <p className="text-sm text-gray-500">No data yet.</p>
       ) : (
@@ -51,9 +51,9 @@ const RankedBarList: React.FC<RankedBarListProps> = ({ title, rows }) => {
                 <span className="text-gray-600 capitalize">{row.label}</span>
                 <span className="font-medium text-gray-900">{row.count}</span>
               </div>
-              <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-gray-100 overflow-hidden">
                 <div
-                  className="h-full bg-accent-500 rounded-full transition-all"
+                  className="h-full bg-gradient-to-r from-accent-500 to-accent-800 transition-all"
                   style={{ width: `${(row.count / max) * 100}%` }}
                 />
               </div>
@@ -123,7 +123,7 @@ export const StaffDashboard: React.FC = () => {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="text-center space-y-3 max-w-xl mx-auto">
         <span className="text-xs font-medium text-accent-600">Overview</span>
-        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Dashboard</h2>
+        <h2 className="text-2xl sm:text-3xl">Dashboard</h2>
         <p className="text-sm text-gray-500">
           {isAdmin ? 'Atelier-wide performance at a glance.' : 'Your active orders and workload at a glance.'}
         </p>

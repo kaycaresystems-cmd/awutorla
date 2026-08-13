@@ -89,7 +89,7 @@ export const DirectSMSModal: React.FC<DirectSMSModalProps> = ({
               required
               value={recipientPhone}
               onChange={(e) => setRecipientPhone(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 pr-9 transition-colors"
+              className="w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 pr-9 transition-colors"
             />
             <Smartphone size={14} className="absolute right-3 top-3 text-gray-400" />
           </div>
@@ -103,7 +103,7 @@ export const DirectSMSModal: React.FC<DirectSMSModalProps> = ({
                 key={idx}
                 type="button"
                 onClick={() => setMessageText(tpl.text)}
-                className="px-2.5 py-1 bg-gray-50 border border-gray-200 hover:border-gray-300 hover:bg-white rounded-md text-xs text-gray-600 hover:text-gray-900 transition-colors"
+                className="px-2.5 py-1 glass-inset hover:bg-white/70 text-xs text-gray-600 hover:text-gray-900 transition-colors"
               >
                 {tpl.label}
               </button>
@@ -121,7 +121,7 @@ export const DirectSMSModal: React.FC<DirectSMSModalProps> = ({
             required
             value={messageText}
             onChange={(e) => setMessageText(e.target.value)}
-            className="w-full bg-gray-50 border border-gray-200 rounded-lg p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 leading-relaxed transition-colors"
+            className="w-full bg-white/70 border border-gray-200 p-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 leading-relaxed transition-colors"
           />
         </div>
 

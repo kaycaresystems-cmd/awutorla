@@ -140,20 +140,20 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 font-sans pb-32 relative">
+    <div className="min-h-screen bg-white text-gray-900 font-sans pb-32 relative">
 
       {/* Brand Header */}
-      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 px-4 sm:px-6 py-4">
+      <header className="glass sticky top-0 z-40 px-4 sm:px-6 py-4 border-x-0 border-t-0">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
 
           {/* Brand Insignia */}
           <div className="flex items-center gap-3 text-center md:text-left">
-            <div className="w-9 h-9 rounded-lg bg-gray-900 text-white flex items-center justify-center text-sm font-semibold">
+            <div className="w-9 h-9 bg-gradient-to-br from-accent-500 to-accent-800 text-white flex items-center justify-center text-sm font-semibold font-display">
               LA
             </div>
             <div>
-              <h1 className="text-lg font-semibold text-gray-900 leading-none">{businessName}</h1>
-              <p className="text-xs text-gray-500 mt-1">Bespoke Ghanaian tailoring & workshop system</p>
+              <h1 className="text-lg leading-none">{businessName}</h1>
+              <p className="text-xs text-gray-500 mt-1 font-sans">Bespoke Ghanaian tailoring & workshop system</p>
             </div>
           </div>
 
@@ -164,7 +164,7 @@ function App() {
             {isStaff && (
               <button
                 onClick={() => setIsIntakeOpen(true)}
-                className="px-3.5 py-2 rounded-lg text-sm text-white bg-gray-900 hover:bg-accent-600 font-medium transition-colors flex items-center gap-1.5"
+                className="px-3.5 py-2 text-sm text-white bg-gradient-to-br from-accent-500 to-accent-800 hover:from-accent-600 hover:to-accent-800 font-medium transition-colors flex items-center gap-1.5"
               >
                 <UserPlus size={14} />
                 <span>New Intake</span>
@@ -174,7 +174,7 @@ function App() {
             {/* Track Garment Passport Action */}
             <button
               onClick={() => setIsOrderTrackerOpen(true)}
-              className="px-3.5 py-2 rounded-lg text-sm text-gray-700 bg-white border border-gray-200 hover:border-gray-300 flex items-center gap-1.5 transition-colors"
+              className="glass-inset px-3.5 py-2 text-sm text-gray-700 hover:bg-white/70 flex items-center gap-1.5 transition-colors"
             >
               <Search size={14} />
               <span>Track Order</span>

@@ -30,15 +30,15 @@ export const Modal: React.FC<ModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
-      <div onClick={onClose} className="fixed inset-0 bg-gray-900/50" />
+      <div onClick={onClose} className="fixed inset-0 bg-accent-800/20 backdrop-blur-sm" />
 
       <div
-        className={`relative w-full ${maxWidth} bg-white rounded-xl shadow-popover overflow-hidden z-10 my-6 border border-gray-200 flex flex-col max-h-[90vh]`}
+        className={`relative w-full ${maxWidth} glass-strong overflow-hidden z-10 my-6 flex flex-col max-h-[90vh]`}
       >
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-b border-gray-200 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
             {icon && (
-              <div className="w-9 h-9 rounded-lg bg-accent-50 text-accent-600 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 bg-accent-50 text-accent-600 flex items-center justify-center shrink-0">
                 {icon}
               </div>
             )}

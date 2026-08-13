@@ -124,7 +124,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
     >
       <div className="p-6 space-y-5">
         {recordedSuccess ? (
-          <div className="p-6 text-center bg-gray-50 rounded-xl border border-emerald-200 space-y-4">
+          <div className="p-6 text-center glass-inset border-emerald-200 space-y-4">
             <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 size={26} />
             </div>
@@ -151,7 +151,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors"
+                className="px-4 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors"
               >
                 Done
               </button>
@@ -159,7 +159,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 grid grid-cols-3 gap-2 text-center text-xs">
+            <div className="p-4 glass-inset grid grid-cols-3 gap-2 text-center text-xs">
               <div>
                 <span className="text-gray-500 block">Total Value</span>
                 <span className="font-semibold text-gray-900 text-sm">GHS {order.totalAmount.toFixed(2)}</span>
@@ -182,10 +182,10 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                     key={m}
                     type="button"
                     onClick={() => setPaymentMethod(m)}
-                    className={`p-2.5 rounded-lg border text-left font-medium transition-colors ${
+                    className={`p-2.5 border text-left font-medium transition-colors ${
                       paymentMethod === m
-                        ? 'bg-gray-900 text-white border-gray-900'
-                        : 'bg-gray-50 text-gray-700 border-gray-200 hover:border-gray-300 hover:bg-white'
+                        ? 'bg-gradient-to-br from-accent-500 to-accent-800 text-white border-accent-800'
+                        : 'glass-inset text-gray-700 hover:bg-white/70'
                     }`}
                   >
                     {m}
@@ -204,13 +204,13 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                   required
                   value={amountPaid}
                   onChange={(e) => setAmountPaid(parseFloat(e.target.value) || 0)}
-                  className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 pl-8 transition-colors"
+                  className="w-full bg-white/70 border border-gray-200 p-2.5 text-sm font-semibold text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 pl-8 transition-colors"
                 />
                 <DollarSign size={14} className="absolute left-2.5 top-3 text-gray-400" />
               </div>
             </div>
 
-            <div className="p-3 bg-gray-50 rounded-lg border border-gray-200 text-xs flex justify-between items-center">
+            <div className="p-3 glass-inset text-xs flex justify-between items-center">
               <span className="text-gray-500">Remaining balance after payment:</span>
               <span className={`font-semibold ${calculatedRemainingBalance === 0 ? 'text-emerald-700' : 'text-gray-900'}`}>
                 GHS {calculatedRemainingBalance.toFixed(2)}
@@ -225,7 +225,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                 value={paymentNotes}
                 onChange={(e) => setPaymentNotes(e.target.value)}
                 placeholder="e.g. In-store POS terminal auth #89421"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
               />
             </div>
 
@@ -247,7 +247,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <button
                 type="submit"
                 disabled={isRecording}
-                className="px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
+                className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-semibold text-sm transition-colors flex items-center gap-2"
               >
                 {isRecording ? (
                   <>

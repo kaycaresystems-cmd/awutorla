@@ -139,7 +139,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Order Tracker" subtitle="Client order tracking" icon={<Sparkles size={17} />} maxWidth="max-w-4xl">
       {/* Search Bar — pinned while the order details below scroll */}
-      <div className="sticky top-0 z-10 p-5 bg-white border-b border-gray-200">
+      <div className="sticky top-0 z-10 p-5 bg-white/80 backdrop-blur-md border-b border-gray-200">
         {isAnonymous && (
           <p className="mb-3 text-xs text-gray-500 leading-relaxed">
             Enter your order ID and the phone number on file to view your order —
@@ -153,7 +153,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
               value={searchId}
               onChange={(e) => setSearchId(e.target.value)}
               placeholder={isAnonymous ? 'Order ID (e.g. ORD-BESPOKE-884)' : 'Order ID, phone number, or name...'}
-              className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+              className="w-full bg-white/70 border border-gray-200 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
             />
             <Search size={15} className="absolute left-3 top-3 text-gray-400" />
           </div>
@@ -164,7 +164,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
                 value={trackPhone}
                 onChange={(e) => setTrackPhone(e.target.value)}
                 placeholder="Phone number (e.g. 024XXXXXXX)"
-                className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
+                className="w-full bg-white/70 border border-gray-200 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors"
               />
               <Phone size={14} className="absolute left-3 top-3 text-gray-400" />
             </div>
@@ -172,7 +172,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
           <button
             type="submit"
             disabled={isLoading}
-            className="px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors disabled:opacity-60"
+            className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors disabled:opacity-60"
           >
             Track Order
           </button>
@@ -217,7 +217,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
             <FabricStatusBadge status={getBadgeStatus(activeOrder.stage)} orderId={activeOrder.id} />
           </div>
 
-          <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 text-sm space-y-2">
+          <div className="p-4 glass-inset text-sm space-y-2">
             <div className="flex justify-between border-b border-gray-100 pb-1.5">
               <span className="text-gray-500 text-xs">Client</span>
               <span className="font-medium text-gray-900">{activeOrder.clientName}</span>
@@ -237,7 +237,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
           </div>
 
           {/* Financial Status & Balance Settlement */}
-          <div className="p-5 bg-white rounded-xl border border-gray-200 text-sm space-y-4">
+          <div className="p-5 glass text-sm space-y-4">
             <div className="flex justify-between items-center border-b border-gray-100 pb-3">
               <div>
                 <span className="text-gray-500 text-xs block">Total Bespoke Investment</span>
@@ -276,7 +276,7 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
           {/* Production Milestone Journey */}
           <div className="space-y-3">
             <span className="text-xs font-medium text-gray-500 block">Production Journey</span>
-            <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-3">
+            <div className="p-4 glass-inset space-y-3">
               {activeOrder.stageHistory.map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3 border-b border-gray-100 pb-2.5 last:border-0 last:pb-0">
                   <CheckCircle2 size={15} className="text-emerald-600 mt-0.5 shrink-0" />

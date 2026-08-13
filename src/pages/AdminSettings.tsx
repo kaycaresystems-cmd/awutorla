@@ -25,7 +25,7 @@ export const AdminSettings: React.FC = () => {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="text-center space-y-3 max-w-xl mx-auto">
         <span className="text-xs font-medium text-accent-600">Admin Only</span>
-        <h2 className="text-2xl sm:text-3xl font-semibold text-gray-900">Settings</h2>
+        <h2 className="text-2xl sm:text-3xl">Settings</h2>
         <p className="text-sm text-gray-500">Manage the team, sizing system, and shop details for the atelier.</p>
       </div>
 
@@ -34,8 +34,8 @@ export const AdminSettings: React.FC = () => {
           <button
             key={s.id}
             onClick={() => setActiveSection(s.id)}
-            className={`px-4 py-2.5 rounded-lg text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
-              activeSection === s.id ? 'bg-gray-900 text-white' : 'bg-white border border-gray-200 text-gray-600 hover:border-gray-300'
+            className={`px-4 py-2.5 text-sm font-medium whitespace-nowrap transition-colors flex items-center gap-2 ${
+              activeSection === s.id ? 'bg-gradient-to-br from-accent-500 to-accent-800 text-white' : 'glass-inset text-gray-600 hover:bg-white/70'
             }`}
           >
             {s.icon}
@@ -44,8 +44,8 @@ export const AdminSettings: React.FC = () => {
         ))}
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 space-y-1">
-        <h3 className="text-lg font-semibold text-gray-900">{current.label}</h3>
+      <div className="glass p-6 sm:p-8 space-y-1">
+        <h3 className="text-lg font-semibold text-gray-900 font-sans">{current.label}</h3>
         <p className="text-sm text-gray-500 mb-5">{current.description}</p>
 
         {activeSection === 'tailors' && <TailorsManager />}

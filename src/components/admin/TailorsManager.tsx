@@ -29,7 +29,7 @@ const ROLE_OPTIONS: { value: UserRole; label: string; icon: React.ReactNode }[] 
 ];
 
 const inputClass =
-  'w-full bg-white border border-gray-200 rounded-lg p-2.5 pl-9 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
+  'w-full bg-white/70 border border-gray-200 p-2.5 pl-9 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
 const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
 
 /**
@@ -139,7 +139,7 @@ export const TailorsManager: React.FC = () => {
           <span>Add Tailor / Admin</span>
         </button>
       ) : (
-        <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 space-y-4">
+        <div className="p-4 glass-inset space-y-4">
           {createdAccount ? (
             <div className="space-y-3">
               <div className="flex items-center gap-2 text-emerald-700">
@@ -150,7 +150,7 @@ export const TailorsManager: React.FC = () => {
                 Share this temporary password with {createdAccount.email} directly — it won't be shown again. They
                 can sign in via the Sign In tab and change it any time.
               </p>
-              <div className="flex items-center justify-between gap-2 p-3 bg-white rounded-lg border border-gray-200">
+              <div className="flex items-center justify-between gap-2 p-3 bg-white/70 border border-gray-200">
                 <span className="text-sm font-mono tracking-wider text-gray-900">{createdAccount.tempPassword}</span>
                 <button
                   type="button"
@@ -246,7 +246,7 @@ export const TailorsManager: React.FC = () => {
 
                 <div>
                   <label className={labelClass}>Role</label>
-                  <div className="flex bg-white rounded-lg border border-gray-200 p-1">
+                  <div className="flex bg-white/70 border border-gray-200 p-1">
                     <button
                       type="button"
                       onClick={() => setNewRole('tailor')}
@@ -313,7 +313,7 @@ export const TailorsManager: React.FC = () => {
           return (
             <div
               key={p.id}
-              className="p-3.5 bg-gray-50 rounded-lg border border-gray-200 flex flex-wrap items-center justify-between gap-3"
+              className="p-3.5 glass-inset flex flex-wrap items-center justify-between gap-3"
             >
               <div className="text-sm">
                 <div className="font-medium text-gray-900">

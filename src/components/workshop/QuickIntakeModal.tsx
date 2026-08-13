@@ -23,7 +23,7 @@ interface QuickIntakeModalProps {
 }
 
 const inputClass =
-  'w-full bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
+  'w-full bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 transition-colors';
 const labelClass = 'block text-xs font-medium text-gray-600 mb-1';
 
 export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
@@ -289,7 +289,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
     >
       <form onSubmit={handleSubmit} className="p-6 space-y-6">
         {successInfo ? (
-          <div className="p-8 text-center bg-gray-50 rounded-xl border border-emerald-200 space-y-4">
+          <div className="p-8 text-center glass-inset border-emerald-200 space-y-4">
             <div className="w-14 h-14 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-600 flex items-center justify-center mx-auto">
               <CheckCircle2 size={32} />
             </div>
@@ -301,7 +301,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
             </p>
 
             {successInfo.accessCode ? (
-              <div className="mx-auto max-w-sm p-4 bg-white rounded-xl border border-gray-200 space-y-1.5">
+              <div className="mx-auto max-w-sm p-4 bg-white/70 border border-gray-200 space-y-1.5">
                 <span className="text-xs font-medium text-gray-500 block">
                   {successInfo.isNewAccount ? 'Client Account Created' : 'Client Account Recognized'}
                 </span>
@@ -342,7 +342,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-5 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors"
+                className="px-5 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors"
               >
                 View in Workshop Kanban
               </button>
@@ -351,7 +351,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
         ) : (
           <>
             {/* SECTION 1: CLIENT CONTACT */}
-            <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+            <div className="p-5 glass-inset space-y-4">
               <span className="text-xs font-semibold text-accent-600 block">Client Information</span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -392,7 +392,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
             </div>
 
             {/* SECTION 2: TAILORING PASSPORT */}
-            <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+            <div className="p-5 glass-inset space-y-4">
               <div className="flex justify-between items-center">
                 <span className="text-xs font-semibold text-accent-600">Tailoring Passport</span>
                 <div className="flex bg-gray-100 rounded-lg p-0.5 text-xs">
@@ -426,7 +426,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                       onChange={(e) =>
                         setMeasurementValues((prev) => ({ ...prev, [p.key]: parseFloat(e.target.value) || 0 }))
                       }
-                      className="w-full bg-white border border-gray-200 rounded-lg p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+                      className="w-full bg-white/70 border border-gray-200 p-2 text-sm font-semibold text-gray-900 text-center focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
                     />
                   </div>
                 ))}
@@ -434,7 +434,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
             </div>
 
             {/* SECTION 3: GARMENT & FINANCIAL DETAILS */}
-            <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+            <div className="p-5 glass-inset space-y-4">
               <span className="text-xs font-semibold text-accent-600 block">Garment Specification & Pricing</span>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -549,7 +549,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
                 </div>
               </div>
 
-              <div className="p-3 bg-white rounded-lg border border-gray-200 text-xs flex justify-between items-center">
+              <div className="p-3 bg-white/70 border border-gray-200 text-xs flex justify-between items-center">
                 <span className="text-gray-500">Balance remaining (total − paid):</span>
                 <span className={`font-semibold ${remainingBalance === 0 ? 'text-emerald-700' : 'text-rose-600'}`}>
                   GHS {remainingBalance.toFixed(2)}
@@ -576,7 +576,7 @@ export const QuickIntakeModal: React.FC<QuickIntakeModalProps> = ({
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-7 py-2.5 bg-gray-900 text-white hover:bg-accent-600 font-semibold text-sm rounded-lg transition-colors flex items-center gap-2"
+                className="px-7 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-semibold text-sm transition-colors flex items-center gap-2"
               >
                 {isSubmitting ? (
                   <>

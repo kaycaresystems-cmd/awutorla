@@ -26,7 +26,7 @@ export const MeasurementSilhouette: React.FC<MeasurementSilhouetteProps> = ({
         }));
 
   return (
-    <div className={`p-5 bg-white border border-gray-200 rounded-xl ${className}`}>
+    <div className={`p-5 glass ${className}`}>
       <span className="text-xs font-medium text-gray-500 block mb-3">Body Measurements</span>
 
       {entries.length === 0 ? (
@@ -34,7 +34,7 @@ export const MeasurementSilhouette: React.FC<MeasurementSilhouetteProps> = ({
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
           {entries.map((entry) => (
-            <div key={entry.key} className="p-3 bg-gray-50 border border-gray-100 rounded-lg text-center">
+            <div key={entry.key} className="p-3 glass-inset text-center">
               <div className="text-[11px] text-gray-500 capitalize">{entry.label}</div>
               <div className="text-sm font-semibold text-gray-900 mt-0.5">
                 {entry.value ?? '—'} <span className="text-xs font-normal text-gray-400">{unit}</span>

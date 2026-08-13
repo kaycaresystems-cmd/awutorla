@@ -252,7 +252,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
         maxWidth="max-w-5xl"
       >
         {/* Client, Financial, & Tailor Metadata Banner */}
-        <div className="px-6 py-3.5 bg-gray-50 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 text-xs">
+        <div className="px-6 py-3.5 bg-gray-50/60 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4 text-xs">
           <div className="flex items-center gap-4">
             <div>
               <span className="text-gray-500 block">Client</span>
@@ -264,7 +264,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
             </div>
           </div>
 
-          <div className="flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-200">
+          <div className="flex items-center gap-3 bg-white/80 p-2 border border-gray-200">
             <div>
               <span className="text-gray-500 block">Financial Balance</span>
               <span className="font-semibold text-gray-900">
@@ -279,7 +279,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
 
             <button
               onClick={() => setIsPaymentModalOpen(true)}
-              className="px-3 py-1.5 bg-gray-900 text-white hover:bg-accent-600 rounded-md font-medium text-xs transition-colors flex items-center gap-1"
+              className="px-3 py-1.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 font-medium text-xs transition-colors flex items-center gap-1"
             >
               <Receipt size={12} />
               <span>Record Payment</span>
@@ -369,7 +369,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
 
               <div className="space-y-2">
                 {currentTasks.length === 0 ? (
-                  <div className="p-8 text-center bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-500">
+                  <div className="p-8 text-center glass-inset text-sm text-gray-500">
                     No tasks defined for this order yet. Add sub-tasks below.
                   </div>
                 ) : (
@@ -424,7 +424,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
                 )}
               </div>
 
-              <form onSubmit={handleAddNewTask} className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-3">
+              <form onSubmit={handleAddNewTask} className="p-4 glass-inset space-y-3">
                 <span className="text-xs font-semibold text-accent-600 block">Add Task</span>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
                   <input
@@ -433,12 +433,12 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
                     value={newTaskTitle}
                     onChange={(e) => setNewTaskTitle(e.target.value)}
                     placeholder="e.g. Cut interior silk lining & sew boning channels"
-                    className="sm:col-span-7 bg-white rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 border border-gray-200"
+                    className="sm:col-span-7 bg-white/70 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500 border border-gray-200"
                   />
                   <select
                     value={newTaskTailor}
                     onChange={(e) => setNewTaskTailor(e.target.value)}
-                    className="sm:col-span-3 bg-white rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none border border-gray-200"
+                    className="sm:col-span-3 bg-white/70 p-2.5 text-sm text-gray-900 focus:outline-none border border-gray-200"
                   >
                     <option value="Master Kwame Mensah">Master Kwame Mensah</option>
                     <option value="Artisan Kofi Badu">Artisan Kofi Badu</option>
@@ -446,7 +446,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
                   </select>
                   <button
                     type="submit"
-                    className="sm:col-span-2 bg-gray-900 text-white rounded-lg p-2.5 font-medium text-sm hover:bg-accent-600 transition-colors flex items-center justify-center gap-1"
+                    className="sm:col-span-2 bg-gradient-to-br from-accent-500 to-accent-800 text-white p-2.5 font-medium text-sm hover:from-accent-600 transition-colors flex items-center justify-center gap-1"
                   >
                     <Plus size={14} />
                     <span>Add</span>
@@ -467,7 +467,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
                 ))}
               </div>
 
-              <div className="p-5 bg-gray-50 rounded-xl border border-gray-200 space-y-3 text-sm">
+              <div className="p-5 glass-inset space-y-3 text-sm">
                 <div className="flex items-center gap-2 text-accent-600 font-semibold">
                   <Layers size={14} />
                   <span>Textile Specification</span>
@@ -496,7 +496,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
               {order.stageHistory.map((item, idx) => (
                 <div key={idx} className="relative">
                   <div className="absolute -left-[31px] top-0.5 w-3.5 h-3.5 rounded-full bg-gray-900 border-2 border-white" />
-                  <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
+                  <div className="p-4 glass-inset space-y-1">
                     <div className="flex justify-between items-center">
                       <span className="font-semibold text-accent-600 text-sm capitalize">{item.stage}</span>
                       <span className="text-gray-400 text-xs">
@@ -513,7 +513,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
         </div>
 
         {/* Action Footer */}
-        <div className="p-6 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="p-6 bg-gray-50/60 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
             <span className="text-xs text-gray-500 block">Current Production Status</span>
             <div className="flex items-center gap-2">
@@ -527,8 +527,8 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
               <button
                 disabled={isAdvancing}
                 onClick={handleMarkStageComplete}
-                className={`w-full sm:w-auto px-6 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
-                  isAdvancing ? 'bg-gray-200 text-gray-400 cursor-wait' : 'bg-gray-900 text-white hover:bg-accent-600'
+                className={`w-full sm:w-auto px-6 py-3 text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+                  isAdvancing ? 'bg-gray-200 text-gray-400 cursor-wait' : 'bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600'
                 }`}
               >
                 {isAdvancing ? (

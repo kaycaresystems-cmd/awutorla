@@ -114,12 +114,12 @@ export const MeasurementParametersEditor: React.FC = () => {
           value={newLabel}
           onChange={(e) => setNewLabel(e.target.value)}
           placeholder="e.g. Thigh Circumference"
-          className="flex-1 bg-white border border-gray-200 rounded-lg p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
+          className="flex-1 bg-white/70 border border-gray-200 p-2.5 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500/40 focus:border-accent-500"
         />
         <button
           type="submit"
           disabled={isCreating || !newLabel.trim()}
-          className="px-4 py-2.5 bg-gray-900 text-white hover:bg-accent-600 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
+          className="px-4 py-2.5 bg-gradient-to-br from-accent-500 to-accent-800 text-white hover:from-accent-600 text-sm font-semibold transition-colors flex items-center gap-2 disabled:opacity-50"
         >
           {isCreating ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
           <span>Add Parameter</span>
@@ -136,8 +136,8 @@ export const MeasurementParametersEditor: React.FC = () => {
           {parameters.map((p, index) => (
             <div
               key={p.id}
-              className={`p-3.5 rounded-lg border flex items-center justify-between gap-3 ${
-                p.isActive ? 'bg-gray-50 border-gray-200' : 'bg-gray-50/50 border-gray-100 opacity-60'
+              className={`p-3.5 border flex items-center justify-between gap-3 ${
+                p.isActive ? 'glass-inset' : 'bg-gray-50/50 border-gray-100 opacity-60'
               }`}
             >
               <div className="flex items-center gap-3">
