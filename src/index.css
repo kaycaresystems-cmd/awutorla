@@ -4,92 +4,71 @@
 
 @layer base {
   body {
-    @apply bg-[#FAF8F5] text-gray-900 font-sans antialiased selection:bg-gold-200 selection:text-accent-900;
+    @apply bg-gray-100 text-gray-900 font-sans antialiased selection:bg-mustard-200 selection:text-charcoal-900;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-sans font-semibold text-accent-900 tracking-tight;
+    @apply font-sans font-semibold text-charcoal-900 tracking-tight;
   }
 }
 
 @layer components {
-  /* Haute Couture Frosted Glass Primitives */
+  /* Flat Warm-Dashboard Card Primitives (no blur — solid surfaces only) */
   .glass {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(230, 223, 217, 0.75);
+    background: #FFFFFF;
+    border: 1px solid rgba(16, 16, 17, 0.08);
     box-shadow:
-      0 4px 20px -4px rgba(78, 12, 23, 0.04),
-      0 1px 2px 0 rgba(0, 0, 0, 0.02),
-      inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      0 4px 16px -6px rgba(16, 16, 17, 0.06),
+      0 1px 2px 0 rgba(0, 0, 0, 0.02);
   }
 
   .glass-strong {
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(28px) saturate(190%);
-    -webkit-backdrop-filter: blur(28px) saturate(190%);
-    border: 1px solid rgba(212, 175, 55, 0.25);
+    background: #FFFFFF;
+    border: 1px solid rgba(16, 16, 17, 0.08);
     box-shadow:
-      0 16px 40px -12px rgba(78, 12, 23, 0.12),
-      0 4px 12px -2px rgba(0, 0, 0, 0.04),
-      inset 0 1px 1px rgba(255, 255, 255, 0.9);
+      0 16px 36px -14px rgba(16, 16, 17, 0.14),
+      0 4px 12px -2px rgba(0, 0, 0, 0.04);
   }
 
   .glass-inset {
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(78, 12, 23, 0.07);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: #FAFAFA;
+    border: 1px solid rgba(16, 16, 17, 0.07);
   }
 
   .glass-gold {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(252, 249, 238, 0.8) 100%);
-    border: 1px solid rgba(212, 175, 55, 0.35);
-    box-shadow: 0 8px 24px -6px rgba(212, 175, 55, 0.15);
+    background: #FFF8E6;
+    border: 1px solid rgba(237, 174, 31, 0.35);
+    box-shadow: 0 4px 14px -6px rgba(237, 174, 31, 0.2);
   }
 
-  /* Luxury Button Gradients */
+  /* Flat Button Fills */
   .btn-gold {
-    background: linear-gradient(135deg, #D4AF37 0%, #B48C21 100%);
-    color: #FFFFFF;
-    box-shadow: 0 4px 14px -2px rgba(212, 175, 55, 0.35);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    background: #EDAE1F;
+    color: #101011;
+    box-shadow: 0 2px 8px -2px rgba(237, 174, 31, 0.4);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
   .btn-gold:hover {
-    background: linear-gradient(135deg, #E5CD6B 0%, #D4AF37 100%);
-    box-shadow: 0 6px 20px -2px rgba(212, 175, 55, 0.45);
+    background: #F5C244;
+    box-shadow: 0 4px 12px -2px rgba(237, 174, 31, 0.5);
     transform: translateY(-1px);
   }
 
   .btn-burgundy {
-    background: linear-gradient(135deg, #8E2C1A 0%, #4E0C17 100%);
+    background: #101011;
     color: #FFFFFF;
-    box-shadow: 0 4px 14px -2px rgba(78, 12, 23, 0.25);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px -2px rgba(16, 16, 17, 0.3);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   }
   .btn-burgundy:hover {
-    background: linear-gradient(135deg, #B84B2E 0%, #6B1D12 100%);
-    box-shadow: 0 6px 20px -2px rgba(78, 12, 23, 0.35);
+    background: #232326;
+    box-shadow: 0 4px 12px -2px rgba(16, 16, 17, 0.4);
     transform: translateY(-1px);
-  }
-
-  /* Shimmer effect for luxury accents */
-  .gold-shimmer {
-    background: linear-gradient(
-      90deg,
-      rgba(212, 175, 55, 0) 0%,
-      rgba(212, 175, 55, 0.35) 50%,
-      rgba(212, 175, 55, 0) 100%
-    );
-    background-size: 200% 100%;
-    animation: goldShimmer 3s infinite linear;
   }
 }
 
-@keyframes goldShimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+.progress-track-striped {
+  background-image: repeating-linear-gradient(135deg, #F1F1F2 0px, #F1F1F2 6px, #E4E4E6 6px, #E4E4E6 12px);
 }
 
 ::-webkit-scrollbar {
@@ -102,10 +81,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(78, 12, 23, 0.16);
+  background: rgba(16, 16, 17, 0.16);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 12, 23, 0.32);
+  background: rgba(16, 16, 17, 0.32);
 }

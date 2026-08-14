@@ -9,8 +9,8 @@ import {
   UserPlus,
   LogOut,
 } from 'lucide-react';
-import { FloatingDock } from './components/ui/FloatingDock';
-import type { DockItem } from './components/ui/FloatingDock';
+import { TopNavBar } from './components/ui/TopNavBar';
+import type { DockItem } from './components/ui/TopNavBar';
 import { StaffDashboard } from './pages/StaffDashboard';
 import { Clients } from './pages/Clients';
 import { AdminSettings } from './pages/AdminSettings';
@@ -106,7 +106,7 @@ function App() {
 
   if (authLoading) {
     return (
-      <div className="min-h-screen bg-[#FAF8F5] flex flex-col items-center justify-center gap-3">
+      <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-3">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/30 shadow-luxury flex items-center justify-center text-base font-semibold font-display animate-pulse">
           LA
         </div>
@@ -141,97 +141,91 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAF8F5] text-gray-900 font-sans pb-32 relative overflow-x-hidden">
-      {/* Ambient Silk Atmosphere */}
-      <div
-        aria-hidden="true"
-        className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-gradient-to-b from-gold-100/30 via-accent-100/15 to-transparent rounded-full blur-3xl pointer-events-none -z-10"
-      />
+    <div className="min-h-screen bg-gray-100 text-gray-900 font-sans p-3 sm:p-6 lg:p-8 relative overflow-x-hidden">
+      <div className="max-w-7xl mx-auto rounded-3xl shadow-mega-card bg-cream-100 overflow-hidden">
 
-      {/* Brand Header */}
-      <header className="glass-strong sticky top-0 z-40 px-4 sm:px-8 py-3.5 border-b border-gold-500/20 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 sm:gap-4">
+        {/* Brand Header */}
+        <header className="px-4 sm:px-8 py-4 border-b border-gray-200/80">
+          <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
 
-          {/* Brand Insignia */}
-          <div className="flex items-center gap-3.5 text-center md:text-left">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-sm flex items-center justify-center text-sm font-semibold font-display tracking-wider">
-              LA
-            </div>
-            <div>
-              <h1 className="text-xl sm:text-2xl leading-none text-accent-950 font-display font-semibold tracking-tight">{businessName}</h1>
-              <p className="text-[11px] text-gray-500 mt-1 font-sans tracking-wide uppercase">Haute Couture & Bespoke Tailoring</p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="flex flex-wrap items-center gap-2.5 justify-center">
-
-            {/* Quick Intake Button (Tailor/Admin) — gated on the real account role */}
-            {isStaff && (
-              <button
-                onClick={() => setIsIntakeOpen(true)}
-                className="px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-accent-800 to-accent-600 hover:from-accent-700 hover:to-accent-500 rounded-xl shadow-md shadow-accent-900/15 hover:shadow-lg transition-all duration-200 flex items-center gap-2"
-              >
-                <UserPlus size={15} className="text-gold-300" />
-                <span>New Intake</span>
-              </button>
-            )}
-
-            {/* Track Garment Passport Action */}
-            <button
-              onClick={() => setIsOrderTrackerOpen(true)}
-              className="glass-inset px-3.5 py-2 text-xs font-medium text-gray-700 hover:text-accent-900 hover:bg-white/80 rounded-xl border border-gray-200/80 flex items-center gap-1.5 transition-all duration-200 shadow-sm"
-            >
-              <Search size={14} className="text-accent-700" />
-              <span>Track Order</span>
-            </button>
-
-            {/* Signed-in Identity & Sign Out */}
-            <div className="flex items-center gap-2 pl-1 text-xs">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/60 border border-gray-200/60 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-gray-700 font-medium max-w-[140px] truncate">
-                  {profile?.full_name || session.user.email}
-                </span>
+            {/* Brand Insignia */}
+            <div className="flex items-center gap-3.5 text-center lg:text-left shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-charcoal-950 text-mustard-400 flex items-center justify-center text-sm font-semibold font-display tracking-wider">
+                LA
               </div>
+              <div>
+                <h1 className="text-xl sm:text-2xl leading-none text-charcoal-950 font-display font-semibold tracking-tight">{businessName}</h1>
+                <p className="text-[11px] text-gray-500 mt-1 font-sans tracking-wide uppercase hidden sm:block">Haute Couture & Bespoke Tailoring</p>
+              </div>
+            </div>
+
+            {/* Primary Navigation */}
+            <TopNavBar items={dockItems} activeId={activeTab} className="order-3 lg:order-2" />
+
+            {/* Quick Actions */}
+            <div className="flex flex-wrap items-center gap-2.5 justify-center order-2 lg:order-3">
+
+              {/* Quick Intake Button (Tailor/Admin) — gated on the real account role */}
+              {isStaff && (
+                <button
+                  onClick={() => setIsIntakeOpen(true)}
+                  className="px-4 py-2 text-xs font-semibold text-charcoal-950 bg-mustard-400 hover:bg-mustard-300 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
+                >
+                  <UserPlus size={15} />
+                  <span>New Intake</span>
+                </button>
+              )}
+
+              {/* Track Garment Passport Action */}
               <button
-                onClick={() => signOut()}
-                className="w-8 h-8 rounded-xl bg-white/70 hover:bg-rose-50 hover:text-rose-700 border border-gray-200/70 flex items-center justify-center transition-colors text-gray-500 shadow-sm"
-                aria-label="Sign out"
-                title="Sign out"
+                onClick={() => setIsOrderTrackerOpen(true)}
+                className="glass-inset px-3.5 py-2 text-xs font-medium text-gray-700 hover:text-charcoal-900 hover:bg-white rounded-xl border border-gray-200/80 flex items-center gap-1.5 transition-all duration-200 shadow-sm"
               >
-                <LogOut size={15} />
+                <Search size={14} className="text-charcoal-700" />
+                <span>Track Order</span>
               </button>
+
+              {/* Signed-in Identity & Sign Out */}
+              <div className="flex items-center gap-2 pl-1 text-xs">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-50 border border-gray-200/60 shadow-sm">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span className="text-gray-700 font-medium max-w-[140px] truncate">
+                    {profile?.full_name || session.user.email}
+                  </span>
+                </div>
+                <button
+                  onClick={() => signOut()}
+                  className="w-8 h-8 rounded-xl bg-gray-50 hover:bg-rose-50 hover:text-rose-700 border border-gray-200/70 flex items-center justify-center transition-colors text-gray-500 shadow-sm"
+                  aria-label="Sign out"
+                  title="Sign out"
+                >
+                  <LogOut size={15} />
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content Workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+        {/* Main Content Workspace */}
+        <main className="px-4 sm:px-6 py-8 sm:py-10">
 
-        {isStaff && activeTab === 'dashboard' && <StaffDashboard />}
-        {isStaff && activeTab === 'clients' && <Clients />}
-        {isStaff && isAdmin && activeTab === 'settings' && <AdminSettings />}
+          {isStaff && activeTab === 'dashboard' && <StaffDashboard />}
+          {isStaff && activeTab === 'clients' && <Clients />}
+          {isStaff && isAdmin && activeTab === 'settings' && <AdminSettings />}
 
-        {!isStaff && activeTab === 'my-dashboard' && (
-          <ClientDashboard
-            onViewOrder={(orderId) => {
-              setDeepLinkOrderId(orderId);
-              setIsOrderTrackerOpen(true);
-            }}
-            onGoToProfile={() => setActiveTab('my-profile')}
-          />
-        )}
-        {!isStaff && activeTab === 'my-profile' && <ClientProfilePage />}
+          {!isStaff && activeTab === 'my-dashboard' && (
+            <ClientDashboard
+              onViewOrder={(orderId) => {
+                setDeepLinkOrderId(orderId);
+                setIsOrderTrackerOpen(true);
+              }}
+              onGoToProfile={() => setActiveTab('my-profile')}
+            />
+          )}
+          {!isStaff && activeTab === 'my-profile' && <ClientProfilePage />}
 
-      </main>
-
-      {/* Floating Bottom Navigation Dock */}
-      <FloatingDock
-        items={dockItems}
-        activeId={activeTab}
-      />
+        </main>
+      </div>
 
       {/* Client Order Tracking */}
       <ClientOrderTracker

@@ -46,7 +46,7 @@ export const FabricStatusBadge: React.FC<FabricStatusBadgeProps> = ({ status, cl
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border shadow-sm backdrop-blur-sm ${s.bg} ${s.text} ${s.border} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold tracking-wide border shadow-sm ${s.bg} ${s.text} ${s.border} ${className}`}
     >
       <span className="relative flex h-2 w-2">
         {s.pulse && (

@@ -6,6 +6,7 @@ import { DigitalJobCard } from '../workshop/DigitalJobCard';
 import { DirectSMSModal } from '../workshop/DirectSMSModal';
 import { RecordPaymentModal } from '../workshop/RecordPaymentModal';
 import { MeasurementVaultSync } from '../measurements/MeasurementVaultSync';
+import { ProgressBadge } from '../ui/ProgressBadge';
 
 interface ClientProfileProps {
   clientId: string;
@@ -153,13 +154,21 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center pt-3 border-t border-gray-100/90 text-xs">
-                    <span className="text-gray-600 font-mono">
-                      Paid GHS {order.depositPaid.toFixed(0)} / {order.totalAmount.toFixed(0)}
-                      {balance > 0 && <span className="text-rose-600 font-semibold ml-1.5">(Due {balance.toFixed(0)})</span>}
-                    </span>
+                  <div className="pt-3 border-t border-gray-100/90 space-y-2.5 text-xs">
+                    <div onClick={(e) => e.stopPropagation()}>
+                      <ProgressBadge
+                        label="Payment Progress"
+                        percentage={order.totalAmount > 0 ? (order.depositPaid / order.totalAmount) * 100 : 0}
+                        shape="pill-wide"
+                        variant={balance > 0 ? 'charcoal' : 'mustard'}
+                      />
+                      <p className="text-[11px] text-gray-500 font-mono mt-1.5">
+                        GHS {order.depositPaid.toFixed(0)} / {order.totalAmount.toFixed(0)}
+                        {balance > 0 && <span className="text-rose-600 font-semibold ml-1.5">(Due {balance.toFixed(0)})</span>}
+                      </p>
+                    </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex justify-end items-center gap-2">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
@@ -178,7 +187,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
                           setIsPaymentModalOpen(true);
                         }}
                         title="Record Payment"
-                        className="p-2 rounded-xl bg-white hover:bg-gold-50 hover:text-accent-900 border border-gray-200/80 transition-colors text-gray-600 shadow-sm"
+                        className="p-2 rounded-xl bg-white hover:bg-mustard-50 hover:text-charcoal-900 border border-gray-200/80 transition-colors text-gray-600 shadow-sm"
                       >
                         <Receipt size={14} />
                       </button>

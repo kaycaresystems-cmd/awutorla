@@ -27,6 +27,7 @@ import { fetchMeasurementParameters } from '../../lib/measurementParameters';
 import { fetchAppSettings, DEFAULT_APP_SETTINGS } from '../../lib/settings';
 import type { AppSettings } from '../../lib/settings';
 import { downloadInvoicePdf, invoicePdfBlob } from '../../lib/invoice';
+import { activeTabClass, inactiveTabClass } from '../ui/tabStyles';
 import { uploadInvoicePdf } from '../../lib/storage';
 import { useAuth } from '../../lib/auth';
 import { Modal } from '../ui/Modal';
@@ -391,9 +392,7 @@ export const DigitalJobCard: React.FC<DigitalJobCardProps> = ({
                 key={t.id}
                 onClick={() => setActiveTab(t.id)}
                 className={`px-4 py-2 text-xs font-semibold rounded-xl whitespace-nowrap transition-all duration-200 ${
-                  activeTab === t.id
-                    ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm'
-                    : 'text-gray-500 hover:text-accent-900 hover:bg-gold-50/50'
+                  activeTab === t.id ? `${activeTabClass} shadow-sm` : inactiveTabClass
                 }`}
               >
                 {t.label}

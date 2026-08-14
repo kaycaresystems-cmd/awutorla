@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Lock, Mail, KeyRound, Phone, AlertCircle, Loader2 } from 'lucide-react';
 import { useAuth, resendAccessCode } from '../../lib/auth';
 import { CenteredCardShell } from '../ui/CenteredCardShell';
+import { activeTabClass } from '../ui/tabStyles';
 
 type Mode = 'clientCode' | 'signIn';
 
@@ -110,9 +111,7 @@ export const AuthScreen: React.FC = () => {
           type="button"
           onClick={() => switchMode('clientCode')}
           className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'clientCode'
-              ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+            mode === 'clientCode' ? `${activeTabClass} shadow-sm` : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           Client Code
@@ -121,9 +120,7 @@ export const AuthScreen: React.FC = () => {
           type="button"
           onClick={() => switchMode('signIn')}
           className={`flex-1 px-3 py-2 rounded-lg font-semibold transition-all ${
-            mode === 'signIn'
-              ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 shadow-sm'
-              : 'text-gray-500 hover:text-gray-900'
+            mode === 'signIn' ? `${activeTabClass} shadow-sm` : 'text-gray-500 hover:text-gray-900'
           }`}
         >
           Staff Sign In

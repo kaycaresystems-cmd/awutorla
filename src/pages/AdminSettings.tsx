@@ -3,6 +3,7 @@ import { Users, Ruler, Store, ShieldCheck } from 'lucide-react';
 import { TailorsManager } from '../components/admin/TailorsManager';
 import { MeasurementParametersEditor } from '../components/admin/MeasurementParametersEditor';
 import { BusinessSettingsEditor } from '../components/admin/BusinessSettingsEditor';
+import { activeTabClass, inactiveTabClass } from '../components/ui/tabStyles';
 
 type SettingsSection = 'tailors' | 'measurements' | 'business';
 
@@ -25,26 +26,24 @@ export const AdminSettings: React.FC = () => {
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
       {/* Title Section */}
       <div className="text-center space-y-2 max-w-xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-accent-800 bg-accent-50/80 border border-accent-200/60 shadow-sm">
-          <ShieldCheck size={13} className="text-gold-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-charcoal-800 bg-mustard-50 border border-mustard-200 shadow-sm">
+          <ShieldCheck size={13} className="text-mustard-600" />
           <span>Privileged Controls</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl text-accent-950 font-display font-semibold tracking-tight">Atelier Settings</h2>
+        <h2 className="text-3xl sm:text-4xl text-charcoal-950 font-display font-semibold tracking-tight">Atelier Settings</h2>
         <p className="text-xs sm:text-sm text-gray-500 font-sans">
           Configure the tailoring team, master sizing parameters, and studio credentials.
         </p>
       </div>
 
       {/* Navigation Pills */}
-      <div className="flex gap-2 overflow-x-auto pb-1 justify-center">
+      <div className="flex gap-2 overflow-x-auto pb-1 justify-start">
         {SECTIONS.map((s) => (
           <button
             key={s.id}
             onClick={() => setActiveSection(s.id)}
-            className={`px-5 py-2.5 text-xs font-semibold rounded-2xl whitespace-nowrap transition-all flex items-center gap-2 shadow-sm ${
-              activeSection === s.id
-                ? 'bg-gradient-to-r from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-md'
-                : 'glass text-gray-600 hover:text-accent-950 hover:bg-gold-50/60 border-gray-200/80'
+            className={`px-5 py-2.5 text-xs font-semibold rounded-2xl whitespace-nowrap transition-all flex items-center gap-2 shadow-sm border ${
+              activeSection === s.id ? `${activeTabClass} border-transparent shadow-md` : `glass ${inactiveTabClass} border-gray-200/80`
             }`}
           >
             {s.icon}
@@ -54,8 +53,8 @@ export const AdminSettings: React.FC = () => {
       </div>
 
       {/* Section Content Shell */}
-      <div className="glass p-6 sm:p-8 rounded-3xl border border-gold-500/25 shadow-luxury space-y-2">
-        <h3 className="text-xl sm:text-2xl font-bold text-accent-950 font-display">{current.label}</h3>
+      <div className="glass p-6 sm:p-8 rounded-3xl border border-gray-200/60 shadow-luxury space-y-2">
+        <h3 className="text-xl sm:text-2xl font-bold text-charcoal-950 font-display">{current.label}</h3>
         <p className="text-xs text-gray-500 mb-6 font-sans">{current.description}</p>
 
         <div className="pt-2">

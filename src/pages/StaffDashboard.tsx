@@ -10,6 +10,7 @@ import {
 } from '../lib/analytics';
 import type { OrderStatusCount, TailorLoad } from '../lib/analytics';
 import { useAuth } from '../lib/auth';
+import { ProgressBadge } from '../components/ui/ProgressBadge';
 
 interface StatTileProps {
   icon: React.ReactNode;
@@ -19,20 +20,20 @@ interface StatTileProps {
 }
 
 const StatTile: React.FC<StatTileProps> = ({ icon, label, value, badge }) => (
-  <div className="glass p-5 sm:p-6 rounded-2xl flex items-center gap-4 hover:border-gold-500/40 hover:shadow-luxury transition-all duration-200 group">
-    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold-50 to-accent-50 text-accent-800 border border-gold-500/20 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
+  <div className="glass p-5 sm:p-6 rounded-2xl flex items-center gap-4 hover:shadow-luxury transition-all duration-200 group">
+    <div className="w-12 h-12 rounded-xl bg-mustard-50 text-charcoal-800 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
       {icon}
     </div>
     <div className="min-w-0 flex-1">
       <div className="flex items-center justify-between gap-1">
         <span className="text-xs text-gray-500 font-medium tracking-wide uppercase">{label}</span>
         {badge && (
-          <span className="text-[10px] font-semibold text-gold-700 bg-gold-50 px-2 py-0.5 rounded-full border border-gold-500/20">
+          <span className="text-[10px] font-semibold text-mustard-800 bg-mustard-50 px-2 py-0.5 rounded-full border border-mustard-500/20">
             {badge}
           </span>
         )}
       </div>
-      <div className="text-2xl font-bold text-accent-950 font-display tracking-tight mt-0.5">{value}</div>
+      <div className="text-2xl font-bold text-charcoal-950 font-display tracking-tight mt-0.5">{value}</div>
     </div>
   </div>
 );
@@ -40,15 +41,17 @@ const StatTile: React.FC<StatTileProps> = ({ icon, label, value, badge }) => (
 interface RankedBarListProps {
   title: string;
   rows: { label: string; count: number }[];
+  variant?: 'mustard' | 'charcoal';
 }
 
-// A refined luxury single-hue horizontal bar list with gold-burgundy gradient bars
-const RankedBarList: React.FC<RankedBarListProps> = ({ title, rows }) => {
+// Flat single-hue horizontal bar list — mustard or charcoal fill
+const RankedBarList: React.FC<RankedBarListProps> = ({ title, rows, variant = 'mustard' }) => {
   const max = Math.max(1, ...rows.map((r) => r.count));
+  const barFill = variant === 'charcoal' ? 'bg-charcoal-950' : 'bg-mustard-400';
   return (
-    <div className="glass p-6 sm:p-7 rounded-3xl space-y-5 border border-gold-500/20 shadow-sm">
+    <div className="glass p-6 sm:p-7 rounded-3xl space-y-5 border border-gray-200/60 shadow-sm">
       <div className="flex items-center justify-between">
-        <h3 className="text-base font-semibold text-accent-950 font-display tracking-wide">{title}</h3>
+        <h3 className="text-base font-semibold text-charcoal-950 font-display tracking-wide">{title}</h3>
         <span className="text-[11px] font-medium text-gray-400 uppercase tracking-wider">{rows.length} Categories</span>
       </div>
 
@@ -61,17 +64,17 @@ const RankedBarList: React.FC<RankedBarListProps> = ({ title, rows }) => {
             return (
               <div key={row.label} className="group">
                 <div className="flex justify-between items-center mb-1.5 text-xs">
-                  <span className="font-medium text-gray-700 capitalize group-hover:text-accent-900 transition-colors">
+                  <span className="font-medium text-gray-700 capitalize group-hover:text-charcoal-900 transition-colors">
                     {row.label}
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-accent-950 font-mono text-xs">{row.count}</span>
+                    <span className="font-semibold text-charcoal-950 font-mono text-xs">{row.count}</span>
                     <span className="text-[10px] text-gray-400">({percentage}%)</span>
                   </div>
                 </div>
-                <div className="w-full h-2.5 bg-gray-100/80 rounded-full overflow-hidden p-0.5 border border-gray-200/50">
+                <div className="w-full h-2.5 bg-gray-100 rounded-full overflow-hidden p-0.5 border border-gray-200/50">
                   <div
-                    className="h-full bg-gradient-to-r from-gold-500 via-accent-500 to-accent-800 rounded-full transition-all duration-500 shadow-sm"
+                    className={`h-full rounded-full transition-all duration-500 ${barFill}`}
                     style={{ width: `${percentage}%` }}
                   />
                 </div>
@@ -138,19 +141,35 @@ export const StaffDashboard: React.FC = () => {
     );
   }
 
+  const statusTotal = statusCounts.reduce((sum, s) => sum + s.count, 0);
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
       {/* Overview Title Banner */}
       <div className="text-center space-y-2 max-w-xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-accent-800 bg-accent-50/80 border border-accent-200/60 shadow-sm">
-          <Sparkles size={13} className="text-gold-600" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-charcoal-800 bg-mustard-50 border border-mustard-200 shadow-sm">
+          <Sparkles size={13} className="text-mustard-600" />
           <span>Atelier Overview</span>
         </div>
-        <h2 className="text-3xl sm:text-4xl text-accent-950 font-display font-semibold tracking-tight">Dashboard</h2>
+        <h2 className="text-3xl sm:text-4xl text-charcoal-950 font-display font-semibold tracking-tight">Dashboard</h2>
         <p className="text-xs sm:text-sm text-gray-500 font-sans">
           {isAdmin ? 'Atelier-wide real-time performance & production analytics.' : 'Your assigned bespoke orders and active workload.'}
         </p>
       </div>
+
+      {/* Stage Progress Row */}
+      {statusTotal > 0 && (
+        <div className="glass rounded-2xl p-5 sm:p-6 flex flex-wrap justify-center gap-6">
+          {statusCounts.map((s, i) => (
+            <ProgressBadge
+              key={s.label}
+              label={s.label}
+              percentage={(s.count / statusTotal) * 100}
+              variant={i % 2 === 0 ? 'mustard' : 'charcoal'}
+            />
+          ))}
+        </div>
+      )}
 
       {/* KPI Tiles */}
       <div className={`grid grid-cols-1 sm:grid-cols-2 ${isAdmin ? 'lg:grid-cols-4' : 'lg:grid-cols-2'} gap-4`}>
@@ -178,11 +197,13 @@ export const StaffDashboard: React.FC = () => {
         <RankedBarList
           title={isAdmin ? 'Orders by Stage' : 'Your Orders by Stage'}
           rows={statusCounts.map((s) => ({ label: s.label, count: s.count }))}
+          variant="mustard"
         />
         {isAdmin && (
           <RankedBarList
             title="Tailor Workload (Active Orders)"
             rows={tailorLoads.map((t) => ({ label: t.tailorName, count: t.activeOrders }))}
+            variant="charcoal"
           />
         )}
       </div>

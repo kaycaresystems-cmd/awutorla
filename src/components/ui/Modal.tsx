@@ -12,8 +12,8 @@ interface ModalProps {
 }
 
 /**
- * Shared luxury dialog shell for every modal in the app — backdrop blur, rounded-3xl container,
- * gold hairline borders, elegant header with icon badge, and a scrollable body.
+ * Shared dialog shell for every modal in the app — flat rounded-3xl container,
+ * hairline border, header with icon badge, and a scrollable body.
  */
 export const Modal: React.FC<ModalProps> = ({
   isOpen,
@@ -31,14 +31,14 @@ export const Modal: React.FC<ModalProps> = ({
       {/* Backdrop scrim */}
       <div
         onClick={onClose}
-        className="fixed inset-0 bg-accent-950/40 backdrop-blur-md transition-opacity"
+        className="fixed inset-0 bg-charcoal-950/50 transition-opacity"
       />
 
       <div
         className={`relative w-full ${maxWidth} glass-strong rounded-3xl shadow-popover border border-gold-500/30 overflow-hidden z-10 my-6 flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-200`}
       >
         {/* Modal Header */}
-        <div className="flex items-center justify-between gap-3 px-6 py-4 sm:px-7 sm:py-5 border-b border-gray-200/80 bg-white/40 backdrop-blur-sm shrink-0">
+        <div className="flex items-center justify-between gap-3 px-6 py-4 sm:px-7 sm:py-5 border-b border-gray-200/80 bg-cream-100 shrink-0">
           <div className="flex items-center gap-3.5 min-w-0">
             {icon && (
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-gold-50 to-accent-50 text-accent-800 border border-gold-500/20 flex items-center justify-center shrink-0 shadow-sm">
