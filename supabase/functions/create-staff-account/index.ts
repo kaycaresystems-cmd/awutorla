@@ -46,6 +46,24 @@ function isValidEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+// Supabase Auth requires E.164 (digits only, country code, no leading 0) for the phone
+// field — mirrors create-walkin-client/index.ts's sanitizer, which is why walk-in client
+// accounts already work while staff accounts with a phone were failing before this.
+function sanitizeGhanaianPhoneNumber(phoneNumber: string): string {
+  let digits = phoneNumber.replace(/\D/g, '');
+  if (digits.startsWith('0') && digits.length === 10) {
+    digits = '233' + digits.substring(1);
+  } else if (digits.startsWith('233') && digits.length === 12) {
+    // already correct
+  } else if (digits.length === 9) {
+    digits = '233' + digits;
+  }
+  if (digits.length !== 12 || !digits.startsWith('233')) {
+    throw new Error(`Invalid Ghana phone number: '${phoneNumber}'. Expected 10 digits (e.g. 024XXXXXXX) or 233XXXXXXXXX.`);
+  }
+  return digits;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: CORS_HEADERS });
@@ -113,14 +131,27 @@ Deno.serve(async (req: Request) => {
       });
     }
 
+    let sanitizedPhone: string | undefined;
+    if (phone) {
+      try {
+        sanitizedPhone = sanitizeGhanaianPhoneNumber(phone);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Invalid phone number.';
+        return new Response(JSON.stringify({ error: message }), {
+          status: 400,
+          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     const tempPassword = generateTempPassword();
 
     const { data: created, error: createError } = await admin.auth.admin.createUser({
       email,
       password: tempPassword,
-      phone: phone || undefined,
+      phone: sanitizedPhone,
       email_confirm: true,
-      phone_confirm: phone ? true : undefined,
+      phone_confirm: sanitizedPhone ? true : undefined,
       user_metadata: { full_name: fullName, role },
     });
 

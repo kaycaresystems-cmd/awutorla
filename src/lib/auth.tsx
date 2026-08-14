@@ -7,16 +7,26 @@ import type { UserRole } from '../types/database.types';
 
 // supabase-js's functions.invoke() throws a generic FunctionsHttpError ("Edge Function
 // returned a non-2xx status code") for any non-2xx response — it does not surface the
-// JSON error body our Edge Functions actually return. This pulls the real `{ error }`
-// message out of the response so callers see e.g. "An account with this email already
-// exists." instead of the generic message.
+// error body. That body is usually our own function's `{ error: "..." }` JSON, but a
+// platform-level failure (e.g. the function was never deployed, or crashed on boot)
+// instead returns Supabase's own error shape, or plain text/HTML. Try each in turn so
+// callers see the most specific message available instead of the generic one.
 async function describeFunctionError(error: unknown, fallback: string): Promise<string> {
   if (error instanceof FunctionsHttpError) {
     try {
-      const body = await error.context.json();
-      if (body?.error) return String(body.error);
+      const text = await error.context.text();
+      if (text) {
+        try {
+          const body = JSON.parse(text);
+          if (body?.error) return String(body.error);
+          if (body?.message) return String(body.message);
+        } catch {
+          // Not JSON — fall through to the raw text below.
+        }
+        if (text.length < 300) return text;
+      }
     } catch {
-      // Response body wasn't JSON — fall through to the generic message below.
+      // Response body was unreadable — fall through to the generic message below.
     }
   }
   return error instanceof Error ? error.message : fallback;
