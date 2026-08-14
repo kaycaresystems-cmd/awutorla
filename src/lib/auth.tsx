@@ -1,8 +1,26 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
+import { FunctionsHttpError } from '@supabase/supabase-js';
 import { supabase } from './supabase';
 import type { UserRole } from '../types/database.types';
+
+// supabase-js's functions.invoke() throws a generic FunctionsHttpError ("Edge Function
+// returned a non-2xx status code") for any non-2xx response — it does not surface the
+// JSON error body our Edge Functions actually return. This pulls the real `{ error }`
+// message out of the response so callers see e.g. "An account with this email already
+// exists." instead of the generic message.
+async function describeFunctionError(error: unknown, fallback: string): Promise<string> {
+  if (error instanceof FunctionsHttpError) {
+    try {
+      const body = await error.context.json();
+      if (body?.error) return String(body.error);
+    } catch {
+      // Response body wasn't JSON — fall through to the generic message below.
+    }
+  }
+  return error instanceof Error ? error.message : fallback;
+}
 
 export interface AuthProfile {
   id: string;
@@ -50,7 +68,7 @@ export async function createWalkInClient(fullName: string, phone: string): Promi
   const { data, error } = await supabase.functions.invoke('create-walkin-client', {
     body: { fullName, phone },
   });
-  if (error) throw error;
+  if (error) throw new Error(await describeFunctionError(error, 'Failed to register walk-in client.'));
   if (data?.error) throw new Error(data.error);
   return data as WalkInClientResult;
 }
@@ -75,7 +93,7 @@ export async function createStaffAccount(
   const { data, error } = await supabase.functions.invoke('create-staff-account', {
     body: { fullName, email, role, phone },
   });
-  if (error) throw error;
+  if (error) throw new Error(await describeFunctionError(error, 'Failed to create staff account.'));
   if (data?.error) throw new Error(data.error);
   return data as StaffAccountResult;
 }
