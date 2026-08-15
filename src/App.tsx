@@ -146,11 +146,8 @@ function App() {
           <div className="flex flex-col lg:flex-row justify-between items-center gap-4">
 
             {/* Brand Insignia */}
-            <div className="flex items-center gap-3.5 text-center lg:text-left shrink-0">
+            <div className="flex items-center shrink-0">
               <img src="/logo.png" alt={businessName} className="h-10 sm:h-12 w-auto" />
-              <p className="text-[11px] text-gray-500 font-sans tracking-wide uppercase hidden sm:block border-l border-gray-200 pl-3.5">
-                Haute Couture & Bespoke Tailoring
-              </p>
             </div>
 
             {/* Primary Navigation */}
