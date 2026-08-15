@@ -175,12 +175,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
             <Lock size={18} />
           </div>
           <div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-accent-900 uppercase tracking-widest">Master Vault</span>
-              <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-300 rounded-full text-[10px] font-semibold">
-                RLS Protected
-              </span>
-            </div>
+            <span className="text-xs font-semibold text-accent-900 uppercase tracking-widest">Master Vault</span>
             <h3 className="text-xl sm:text-2xl font-bold text-accent-950 font-display">Client Tailoring Passport</h3>
           </div>
         </div>
@@ -261,12 +256,7 @@ export const MeasurementVaultSync: React.FC<MeasurementVaultSyncProps> = ({ targ
       )}
 
       {/* Action Footer */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-2 border-t border-gray-200/80">
-        <div className="text-xs text-gray-500 flex items-center gap-2">
-          <ShieldCheck size={15} className="text-emerald-600" />
-          <span>Linked to account — {user?.email || 'Not signed in'}</span>
-        </div>
-
+      <div className="flex flex-col sm:flex-row justify-end items-center gap-4 pt-2 border-t border-gray-200/80">
         <button
           onClick={handleSaveToSupabase}
           disabled={isSyncing || !clientId}

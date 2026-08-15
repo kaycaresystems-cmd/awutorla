@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Ruler, Plus, Loader2, AlertCircle, ArrowUp, ArrowDown, EyeOff, Eye } from 'lucide-react';
+import { Ruler, Plus, Loader2, AlertCircle, ArrowUp, ArrowDown, EyeOff, Eye, Pencil, Check, X } from 'lucide-react';
 import type { MeasurementParameter } from '../../types/workshop.types';
 import {
   fetchMeasurementParameters,
   createMeasurementParameter,
   setMeasurementParameterActive,
   reorderMeasurementParameter,
+  updateMeasurementParameterLabel,
 } from '../../lib/measurementParameters';
 
 /**
@@ -18,6 +19,8 @@ export const MeasurementParametersEditor: React.FC = () => {
   const [newLabel, setNewLabel] = useState('');
   const [isCreating, setIsCreating] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editLabel, setEditLabel] = useState('');
 
   const load = async () => {
     setIsLoading(true);
@@ -92,10 +95,38 @@ export const MeasurementParametersEditor: React.FC = () => {
     }
   };
 
+  const startEdit = (param: MeasurementParameter) => {
+    setEditingId(param.id);
+    setEditLabel(param.label);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditLabel('');
+  };
+
+  const handleSaveEdit = async (param: MeasurementParameter) => {
+    const trimmed = editLabel.trim();
+    if (!trimmed || trimmed === param.label) {
+      cancelEdit();
+      return;
+    }
+    setBusyId(param.id);
+    try {
+      await updateMeasurementParameterLabel(param.id, trimmed);
+      setParameters((prev) => prev.map((p) => (p.id === param.id ? { ...p, label: trimmed } : p)));
+      cancelEdit();
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusyId(null);
+    }
+  };
+
   return (
     <div className="space-y-6 animate-in fade-in">
       <p className="text-xs text-gray-500 font-sans">
-        This master list applies across all client passports — add or toggle a parameter here to update the atelier's global measurement schema.
+        This master list applies across all client passports — add, rename, or toggle a parameter here to update the atelier's global measurement schema.
       </p>
 
       {errorMessage && (
@@ -138,49 +169,95 @@ export const MeasurementParametersEditor: React.FC = () => {
                 p.isActive ? 'glass border-gold-500/20 shadow-sm' : 'bg-gray-50/70 border-gray-200/60 opacity-60'
               }`}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-8 h-8 rounded-xl bg-gold-50 text-gold-700 border border-gold-500/20 flex items-center justify-center shrink-0">
                   <Ruler size={15} />
                 </div>
-                <div>
-                  <div className="text-xs sm:text-sm font-semibold text-accent-950">{p.label}</div>
-                  <div className="text-[11px] text-gray-400 font-mono">{p.key}</div>
-                </div>
+                {editingId === p.id ? (
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSaveEdit(p);
+                    }}
+                    className="flex items-center gap-1.5 min-w-0 flex-1"
+                  >
+                    <input
+                      type="text"
+                      value={editLabel}
+                      onChange={(e) => setEditLabel(e.target.value)}
+                      autoFocus
+                      className="min-w-0 flex-1 bg-white/90 border border-gold-500/40 rounded-lg px-2.5 py-1 text-xs sm:text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-gold-500/30"
+                    />
+                    <button
+                      type="submit"
+                      disabled={busyId === p.id}
+                      className="p-1.5 rounded-lg text-emerald-700 hover:bg-emerald-50 transition-colors shrink-0"
+                      aria-label="Save name"
+                    >
+                      <Check size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      disabled={busyId === p.id}
+                      className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 transition-colors shrink-0"
+                      aria-label="Cancel"
+                    >
+                      <X size={14} />
+                    </button>
+                  </form>
+                ) : (
+                  <div className="min-w-0">
+                    <div className="text-xs sm:text-sm font-semibold text-accent-950 truncate">{p.label}</div>
+                    <div className="text-[11px] text-gray-400 font-mono">{p.key}</div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  disabled={busyId === p.id || index === 0}
-                  onClick={() => handleMove(index, -1)}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
-                  aria-label="Move up"
-                >
-                  <ArrowUp size={14} />
-                </button>
-                <button
-                  type="button"
-                  disabled={busyId === p.id || index === parameters.length - 1}
-                  onClick={() => handleMove(index, 1)}
-                  className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
-                  aria-label="Move down"
-                >
-                  <ArrowDown size={14} />
-                </button>
-                <button
-                  type="button"
-                  disabled={busyId === p.id}
-                  onClick={() => handleToggleActive(p)}
-                  className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 shadow-sm ${
-                    p.isActive
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                      : 'bg-gray-100 text-gray-500 border-gray-200'
-                  }`}
-                >
-                  {p.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
-                  <span>{p.isActive ? 'Active' : 'Hidden'}</span>
-                </button>
-              </div>
+              {editingId !== p.id && (
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <button
+                    type="button"
+                    disabled={busyId === p.id}
+                    onClick={() => startEdit(p)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
+                    aria-label="Rename"
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === p.id || index === 0}
+                    onClick={() => handleMove(index, -1)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
+                    aria-label="Move up"
+                  >
+                    <ArrowUp size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === p.id || index === parameters.length - 1}
+                    onClick={() => handleMove(index, 1)}
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-gray-900 hover:bg-gold-50 transition-colors disabled:opacity-30"
+                    aria-label="Move down"
+                  >
+                    <ArrowDown size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    disabled={busyId === p.id}
+                    onClick={() => handleToggleActive(p)}
+                    className={`px-3 py-1 rounded-xl text-xs font-semibold border transition-all flex items-center gap-1.5 shadow-sm ${
+                      p.isActive
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                        : 'bg-gray-100 text-gray-500 border-gray-200'
+                    }`}
+                  >
+                    {p.isActive ? <Eye size={12} /> : <EyeOff size={12} />}
+                    <span>{p.isActive ? 'Active' : 'Hidden'}</span>
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>

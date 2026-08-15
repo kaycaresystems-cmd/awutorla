@@ -204,9 +204,6 @@ export const ClientOrderTracker: React.FC<ClientOrderTrackerProps> = ({
                 <span className="text-xs font-mono font-bold text-accent-800 bg-accent-50/90 px-2.5 py-0.5 rounded-md border border-accent-200/60">
                   #{activeOrder.id}
                 </span>
-                <span className="px-2.5 py-0.5 rounded-full bg-gold-50 text-[10px] font-semibold text-gold-800 border border-gold-500/30 uppercase tracking-wider">
-                  Haute Couture
-                </span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 leading-tight">
                 {activeOrder.garmentTitle}

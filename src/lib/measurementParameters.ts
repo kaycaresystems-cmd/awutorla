@@ -65,3 +65,17 @@ export async function reorderMeasurementParameter(id: string, displayOrder: numb
     .eq('id', id);
   if (error) throw error;
 }
+
+/**
+ * Renames a parameter's display label. The slug `key` is left untouched so
+ * existing recorded values (keyed by parameter_id, not by key) are unaffected.
+ */
+export async function updateMeasurementParameterLabel(id: string, label: string): Promise<void> {
+  const trimmed = label.trim();
+  if (!trimmed) throw new Error('Enter a parameter name.');
+
+  const { error } = await (supabase.from('measurement_parameters') as any)
+    .update({ label: trimmed })
+    .eq('id', id);
+  if (error) throw error;
+}
