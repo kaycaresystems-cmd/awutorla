@@ -128,7 +128,7 @@ ALTER TABLE public.client_measurements
 -- ==============================================================================
 INSERT INTO public.app_settings (key, value)
 VALUES
-    ('business_name', '"Maison L''Atelier"'::jsonb),
+    ('business_name', '"Awutorla"'::jsonb),
     ('contact_phone', '""'::jsonb),
     ('contact_email', '""'::jsonb),
     ('currency', '"GHS"'::jsonb),

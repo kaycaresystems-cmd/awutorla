@@ -103,7 +103,7 @@ export const BusinessSettingsEditor: React.FC = () => {
             type="email"
             value={settings.contact_email}
             onChange={(e) => handleChange('contact_email', e.target.value)}
-            placeholder="concierge@latelier.com"
+            placeholder="concierge@awutorla.com"
             className={inputClass}
           />
         </div>

@@ -65,11 +65,11 @@ export async function runAllWhatsAppTests() {
   await test('Formats clean editorial welcome message without any emojis', () => {
     const msg = formatWhatsAppWelcomeMessage('Abena Poku', 'ORD-BESPOKE-992', 'Royal Kente Ballgown', 1750, 3500);
 
-    assert(msg.includes('*Maison L\'Atelier // Bespoke Garment Intake*'), 'Includes bold header');
+    assert(msg.includes('*Awutorla // Bespoke Garment Intake*'), 'Includes bold header');
     assert(msg.includes('Abena Poku'), 'Includes client name');
     assert(msg.includes('ORD-BESPOKE-992'), 'Includes order reference');
     assert(msg.includes('GHS 1750.00 of GHS 3500.00'), 'Includes deposit breakdown');
-    assert(msg.includes('https://latelier.app/?track=ORD-BESPOKE-992'), 'Includes tracking deep-link');
+    assert(msg.includes('https://awutorla.com/?track=ORD-BESPOKE-992'), 'Includes tracking deep-link');
 
     // Strict emoji check
     assert(!EMOJI_REGEX.test(msg), 'Welcome message must contain ZERO emojis');

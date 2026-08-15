@@ -100,13 +100,13 @@ export async function runManualPaymentTests() {
   await test('Generates clean editorial payment receipt for in-person Cash', () => {
     const receipt = formatWhatsAppPaymentReceipt(sampleOrder, 1000, 'Cash in Atelier');
 
-    assert(receipt.includes('*Maison L\'Atelier // Payment Receipt*'), 'Must include bold header');
+    assert(receipt.includes('*Awutorla // Payment Receipt*'), 'Must include bold header');
     assert(receipt.includes('Akosua Mensah'), 'Must include client name');
     assert(receipt.includes('Payment Method: Cash in Atelier'), 'Must include payment method');
     assert(receipt.includes('Amount Received: GHS 1000.00'), 'Must format amount received');
     assert(receipt.includes('Total Paid to Date: GHS 2500.00 of GHS 3500.00'), 'Must show running total');
     assert(receipt.includes('Remaining Balance: GHS 1000.00'), 'Must show remaining balance');
-    assert(receipt.includes('https://latelier.app/?track=ORD-BESPOKE-990'), 'Must include passport link');
+    assert(receipt.includes('https://awutorla.com/?track=ORD-BESPOKE-990'), 'Must include passport link');
 
     // Strict emoji check
     assert(!EMOJI_REGEX.test(receipt), 'Payment receipt must contain ZERO emojis');

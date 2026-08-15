@@ -9,7 +9,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
-  business_name: "Maison L'Atelier",
+  business_name: "Awutorla",
   contact_phone: '',
   contact_email: '',
   currency: 'GHS',

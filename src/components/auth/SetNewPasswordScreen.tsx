@@ -41,11 +41,9 @@ export const SetNewPasswordScreen: React.FC = () => {
   return (
     <CenteredCardShell>
       <div className="text-center space-y-2 mb-8">
-        <div className="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 shadow-luxury flex items-center justify-center text-lg font-semibold font-display">
-          LA
-        </div>
+        <img src="/logo.png" alt="Awutorla" className="h-12 w-auto mx-auto" />
         <h1 className="text-2xl sm:text-3xl font-display font-semibold text-accent-950 mt-3">Set New Password</h1>
-        <p className="text-xs text-gray-500 font-sans">Enter your new credentials for Maison L'Atelier</p>
+        <p className="text-xs text-gray-500 font-sans">Enter your new credentials for Awutorla</p>
       </div>
 
       {success ? (

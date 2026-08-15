@@ -24,7 +24,7 @@ export const DirectSMSModal: React.FC<DirectSMSModalProps> = ({
     if (isOpen && order) {
       setRecipientPhone(order.clientPhone || '0244123456');
       setMessageText(
-        `Hi ${order.clientName}, your fitting for Order #${order.id} is scheduled for tomorrow at 2 PM at Maison L'Atelier, Osu. Please reply to confirm. Track live: https://latelier.app/?track=${order.id}`
+        `Hi ${order.clientName}, your fitting for Order #${order.id} is scheduled for tomorrow at 2 PM at Awutorla, Osu. Please reply to confirm. Track live: https://awutorla.com/?track=${order.id}`
       );
     }
   }, [order?.id, isOpen]);
@@ -34,19 +34,19 @@ export const DirectSMSModal: React.FC<DirectSMSModalProps> = ({
   const templates = [
     {
       label: 'Fitting Reminder',
-      text: `Hi ${order.clientName}, this is a reminder of your bespoke fitting for Order #${order.id} scheduled for tomorrow at 2 PM at Maison L'Atelier, Osu. Please reply to confirm. Track live: https://latelier.app/?track=${order.id}`,
+      text: `Hi ${order.clientName}, this is a reminder of your bespoke fitting for Order #${order.id} scheduled for tomorrow at 2 PM at Awutorla, Osu. Please reply to confirm. Track live: https://awutorla.com/?track=${order.id}`,
     },
     {
       label: 'Fabric Arrived',
-      text: `Hi ${order.clientName}, your custom fabric for Order #${order.id} has arrived at our Osu atelier. Cutting has been scheduled with ${order.assignedTailor}. Track live: https://latelier.app/?track=${order.id}`,
+      text: `Hi ${order.clientName}, your custom fabric for Order #${order.id} has arrived at our Osu atelier. Cutting has been scheduled with ${order.assignedTailor}. Track live: https://awutorla.com/?track=${order.id}`,
     },
     {
       label: 'Toile Prepped',
-      text: `Hi ${order.clientName}, the preliminary toile muslin for Order #${order.id} is prepared. Please visit our atelier lounge at your convenience for pinning. Track live: https://latelier.app/?track=${order.id}`,
+      text: `Hi ${order.clientName}, the preliminary toile muslin for Order #${order.id} is prepared. Please visit our atelier lounge at your convenience for pinning. Track live: https://awutorla.com/?track=${order.id}`,
     },
     {
       label: 'Collection Notice',
-      text: `Hi ${order.clientName}, your bespoke creation for Order #${order.id} is finalized and ready for collection at Maison L'Atelier, Osu. Medaase. Track live: https://latelier.app/?track=${order.id}`,
+      text: `Hi ${order.clientName}, your bespoke creation for Order #${order.id} is finalized and ready for collection at Awutorla, Osu. Medaase. Track live: https://awutorla.com/?track=${order.id}`,
     },
   ];
 

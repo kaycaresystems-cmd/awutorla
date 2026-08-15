@@ -239,7 +239,7 @@ export const TailorsManager: React.FC = () => {
                       required
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="artisan@latelier.com"
+                      placeholder="artisan@awutorla.com"
                       className={inputClass}
                     />
                     <Mail size={14} className="absolute left-3 top-3 text-gold-700" />

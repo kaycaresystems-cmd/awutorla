@@ -107,10 +107,7 @@ function App() {
   if (authLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/30 shadow-luxury flex items-center justify-center text-base font-semibold font-display animate-pulse">
-          LA
-        </div>
-        <p className="text-xs tracking-widest uppercase text-accent-900/60 font-medium">Maison L'Atelier</p>
+        <img src="/logo.png" alt="Awutorla" className="h-14 w-auto animate-pulse" />
       </div>
     );
   }
@@ -150,13 +147,10 @@ function App() {
 
             {/* Brand Insignia */}
             <div className="flex items-center gap-3.5 text-center lg:text-left shrink-0">
-              <div className="w-10 h-10 rounded-xl bg-charcoal-950 text-mustard-400 flex items-center justify-center text-sm font-semibold font-display tracking-wider">
-                LA
-              </div>
-              <div>
-                <h1 className="text-xl sm:text-2xl leading-none text-charcoal-950 font-display font-semibold tracking-tight">{businessName}</h1>
-                <p className="text-[11px] text-gray-500 mt-1 font-sans tracking-wide uppercase hidden sm:block">Haute Couture & Bespoke Tailoring</p>
-              </div>
+              <img src="/logo.png" alt={businessName} className="h-10 sm:h-12 w-auto" />
+              <p className="text-[11px] text-gray-500 font-sans tracking-wide uppercase hidden sm:block border-l border-gray-200 pl-3.5">
+                Haute Couture & Bespoke Tailoring
+              </p>
             </div>
 
             {/* Primary Navigation */}

@@ -56,7 +56,7 @@ function sanitizeGhanaianPhoneNumber(phoneNumber: string): string {
 async function sendHubtelSms(to: string, content: string): Promise<boolean> {
   const clientId = Deno.env.get('HUBTEL_CLIENT_ID');
   const clientSecret = Deno.env.get('HUBTEL_CLIENT_SECRET');
-  const senderId = Deno.env.get('HUBTEL_SENDER_ID') || 'MaisonAtelier';
+  const senderId = Deno.env.get('HUBTEL_SENDER_ID') || 'Awutorla';
 
   if (!clientId || !clientSecret) {
     console.warn('[resend-access-code] Hubtel SMS credentials not configured — skipping SMS send.');
@@ -148,7 +148,7 @@ Deno.serve(async (req: Request) => {
 
     await sendHubtelSms(
       sanitizedPhone,
-      `Hi ${profile.full_name || ''}, your new Maison L'Atelier access code is ${newCode}.`.trim()
+      `Hi ${profile.full_name || ''}, your new Awutorla access code is ${newCode}.`.trim()
     );
 
     return genericOk();

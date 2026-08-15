@@ -33,7 +33,7 @@ export function generateInvoicePdf(order: BespokeJobOrder, settings: AppSettings
   doc.setTextColor(INK);
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
-  doc.text(settings.business_name || "Maison L'Atelier", marginX, y);
+  doc.text(settings.business_name || "Awutorla", marginX, y);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(9);
@@ -139,7 +139,7 @@ export function generateInvoicePdf(order: BespokeJobOrder, settings: AppSettings
   doc.setFontSize(9);
   doc.setTextColor(MUTED);
   doc.text(
-    `Thank you for commissioning ${settings.business_name || "Maison L'Atelier"}.`,
+    `Thank you for commissioning ${settings.business_name || "Awutorla"}.`,
     marginX,
     y,
     { maxWidth: pageWidth - marginX * 2 }

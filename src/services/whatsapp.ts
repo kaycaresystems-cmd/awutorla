@@ -32,7 +32,7 @@ export function formatWhatsAppWelcomeMessage(
   totalAmount?: number
 ): string {
   const lines = [
-    `*Maison L'Atelier // Bespoke Garment Intake*`,
+    `*Awutorla // Bespoke Garment Intake*`,
     `Client: ${clientName}`,
     `Order Reference: #${orderId}`,
     `Garment: ${garmentTitle}`,
@@ -41,7 +41,7 @@ export function formatWhatsAppWelcomeMessage(
     `Your bespoke order has been registered on the atelier floor. We will notify you once fabric inspection and cutting begin.`,
     ``,
     `View your digital garment passport:`,
-    `https://latelier.app/?track=${orderId}`,
+    `https://awutorla.com/?track=${orderId}`,
   ];
 
   return lines.join('\n');
@@ -54,12 +54,12 @@ export function formatWhatsAppStageMessage(
   order: BespokeJobOrder,
   stage: WorkshopStage
 ): string {
-  const passportUrl = `https://latelier.app/?track=${order.id}`;
+  const passportUrl = `https://awutorla.com/?track=${order.id}`;
 
   switch (stage) {
     case 'cutting':
       return [
-        `*Maison L'Atelier // Production Update*`,
+        `*Awutorla // Production Update*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         `Status: In Cutting`,
@@ -72,7 +72,7 @@ export function formatWhatsAppStageMessage(
 
     case 'fitting':
       return [
-        `*Maison L'Atelier // Fitting Invitation*`,
+        `*Awutorla // Fitting Invitation*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         `Status: Ready for Fitting`,
@@ -85,7 +85,7 @@ export function formatWhatsAppStageMessage(
 
     case 'finishing':
       return [
-        `*Maison L'Atelier // Production Update*`,
+        `*Awutorla // Production Update*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         `Status: Final Couture Finishing`,
@@ -98,7 +98,7 @@ export function formatWhatsAppStageMessage(
 
     case 'ready':
       return [
-        `*Maison L'Atelier // Collection Notice*`,
+        `*Awutorla // Collection Notice*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         `Status: Ready for Collection`,
@@ -111,16 +111,16 @@ export function formatWhatsAppStageMessage(
 
     case 'delivered':
       return [
-        `*Maison L'Atelier // Order Delivered*`,
+        `*Awutorla // Order Delivered*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         ``,
-        `Order #${order.id} has been delivered. Thank you for commissioning Maison L'Atelier.`,
+        `Order #${order.id} has been delivered. Thank you for commissioning Awutorla.`,
       ].join('\n');
 
     default:
       return [
-        `*Maison L'Atelier // Production Update*`,
+        `*Awutorla // Production Update*`,
         `Client: ${order.clientName}`,
         `Order Reference: #${order.id}`,
         `Status: ${stage.toUpperCase()}`,
@@ -140,7 +140,7 @@ export function formatWhatsAppFittingReminder(
   dateString: string
 ): string {
   return [
-    `*Maison L'Atelier // Fitting Appointment Reminder*`,
+    `*Awutorla // Fitting Appointment Reminder*`,
     `Client: ${clientName}`,
     `Order Reference: #${orderId}`,
     ``,
@@ -148,7 +148,7 @@ export function formatWhatsAppFittingReminder(
     `Please reply to this message to confirm or request a time adjustment.`,
     ``,
     `View garment passport:`,
-    `https://latelier.app/?track=${orderId}`,
+    `https://awutorla.com/?track=${orderId}`,
   ].join('\n');
 }
 
@@ -163,7 +163,7 @@ export function formatWhatsAppInvoiceMessage(
   invoiceUrl: string
 ): string {
   return [
-    `*Maison L'Atelier // Invoice*`,
+    `*Awutorla // Invoice*`,
     `Client: ${order.clientName}`,
     `Order Reference: #${order.id}`,
     `Garment: ${order.garmentTitle}`,
@@ -185,7 +185,7 @@ export function formatWhatsAppPaymentReceipt(
   const remainingBalance = Math.max(0, order.totalAmount - newDeposit);
 
   return [
-    `*Maison L'Atelier // Payment Receipt*`,
+    `*Awutorla // Payment Receipt*`,
     `Client: ${order.clientName}`,
     `Order Reference: #${order.id}`,
     `Garment: ${order.garmentTitle}`,
@@ -197,6 +197,6 @@ export function formatWhatsAppPaymentReceipt(
     `Your payment has been recorded at our atelier studio. Medaase.`,
     ``,
     `View your digital garment passport:`,
-    `https://latelier.app/?track=${order.id}`,
+    `https://awutorla.com/?track=${order.id}`,
   ].join('\n');
 }

@@ -1,4 +1,4 @@
-# Maison L'Atelier
+# Awutorla
 
 Bespoke Ghanaian tailoring workshop management system — React 19 + TypeScript +
 Vite + Tailwind, backed by Supabase (Postgres, Auth, Edge Functions).

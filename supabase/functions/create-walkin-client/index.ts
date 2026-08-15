@@ -1,7 +1,7 @@
 // Supabase Edge Function: create-walkin-client
 //
 // Called from QuickIntakeModal when a tailor registers a walk-in bespoke client who has
-// no Maison account. This runs server-side because creating a Supabase auth user requires
+// no Awutorla account. This runs server-side because creating a Supabase auth user requires
 // the service-role key, which must never be shipped to the browser.
 //
 // On success it:
@@ -54,7 +54,7 @@ function sanitizeGhanaianPhoneNumber(phoneNumber: string): string {
 async function sendHubtelSms(to: string, content: string): Promise<boolean> {
   const clientId = Deno.env.get('HUBTEL_CLIENT_ID');
   const clientSecret = Deno.env.get('HUBTEL_CLIENT_SECRET');
-  const senderId = Deno.env.get('HUBTEL_SENDER_ID') || 'MaisonAtelier';
+  const senderId = Deno.env.get('HUBTEL_SENDER_ID') || 'Awutorla';
 
   if (!clientId || !clientSecret) {
     console.warn('[create-walkin-client] Hubtel SMS credentials not configured — skipping SMS send.');
@@ -177,8 +177,8 @@ Deno.serve(async (req: Request) => {
     }
 
     const smsContent = isNewAccount
-      ? `Welcome to Maison L'Atelier, ${fullName}! Your client account is ready. Your access code is ${accessCode} — use it to sign in and track your order any time.`
-      : `Hi ${fullName}, your Maison L'Atelier access code is ${accessCode}. Use it to sign in and track your order.`;
+      ? `Welcome to Awutorla, ${fullName}! Your client account is ready. Your access code is ${accessCode} — use it to sign in and track your order any time.`
+      : `Hi ${fullName}, your Awutorla access code is ${accessCode}. Use it to sign in and track your order.`;
     const smsSent = await sendHubtelSms(sanitizedPhone, smsContent);
 
     return new Response(

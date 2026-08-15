@@ -1,4 +1,4 @@
-// Maison L'Atelier - Offline Workshop Service Worker
+// Awutorla - Offline Workshop Service Worker
 const CACHE_NAME = 'atelier-workshop-v1';
 
 const PRECACHE_ASSETS = [
