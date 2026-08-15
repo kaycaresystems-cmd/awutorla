@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Phone, Loader2, PackageOpen, MessageCircle, Receipt, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Phone, Loader2, PackageOpen, MessageCircle, Receipt, Clock, Sparkles, KeyRound, Copy } from 'lucide-react';
 import type { BespokeJobOrder } from '../../types/workshop.types';
 import { fetchAllOrders, subscribeToOrderChanges } from '../../lib/orders';
+import { createWalkInClient } from '../../lib/auth';
 import { DigitalJobCard } from '../workshop/DigitalJobCard';
 import { DirectSMSModal } from '../workshop/DirectSMSModal';
 import { RecordPaymentModal } from '../workshop/RecordPaymentModal';
@@ -28,6 +29,10 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
   const [isDirectSMSOpen, setIsDirectSMSOpen] = useState(false);
   const [paymentOrder, setPaymentOrder] = useState<BespokeJobOrder | null>(null);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [isRegenConfirming, setIsRegenConfirming] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenResult, setRegenResult] = useState<{ accessCode: string; smsSent: boolean } | null>(null);
+  const [regenError, setRegenError] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -57,6 +62,23 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
     if (paymentOrder?.id === updated.id) setPaymentOrder(updated);
   };
 
+  // Reuses create-walkin-client's existing-account-by-phone branch, which resets the
+  // password to a freshly generated code and texts it — the same path a returning
+  // walk-in client already goes through, just triggered by staff instead of intake.
+  const handleRegenerateCode = async () => {
+    setIsRegenerating(true);
+    setRegenError(null);
+    try {
+      const result = await createWalkInClient(clientName, clientPhone);
+      setRegenResult({ accessCode: result.accessCode, smsSent: result.smsSent });
+      setIsRegenConfirming(false);
+    } catch (err) {
+      setRegenError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   return (
     <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-300">
       <button
@@ -68,7 +90,7 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
       </button>
 
       {/* Client Header Card */}
-      <div className="glass p-6 sm:p-7 rounded-3xl flex items-center justify-between gap-4 border border-gold-500/25 shadow-luxury">
+      <div className="glass p-6 sm:p-7 rounded-3xl flex items-center justify-between gap-4 border border-gold-500/25 shadow-luxury flex-wrap">
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-accent-800 to-accent-950 text-gold-300 border border-gold-500/40 flex items-center justify-center text-2xl font-display font-semibold shrink-0 shadow-md">
             {clientName.charAt(0).toUpperCase()}
@@ -88,6 +110,74 @@ export const ClientProfile: React.FC<ClientProfileProps> = ({ clientId, clientNa
             </div>
           </div>
         </div>
+
+        {/* Access Code Regeneration — the code itself is never stored readably (it's
+            literally the account's Supabase Auth password), so this is the only way
+            to hand a client their login again short of them still having the SMS. */}
+        {clientPhone && (
+          <div className="shrink-0">
+            {regenResult ? (
+              <div className="p-3.5 bg-white/95 rounded-xl border border-mustard-500/40 shadow-sm space-y-1.5 text-right min-w-[200px]">
+                <span className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">New Access Code</span>
+                <div className="flex items-center gap-2 justify-end">
+                  <span className="text-lg font-bold tracking-wider text-charcoal-950 font-mono">{regenResult.accessCode}</span>
+                  <button
+                    type="button"
+                    onClick={() => navigator.clipboard?.writeText(regenResult.accessCode)}
+                    title="Copy code"
+                    className="p-1.5 rounded-lg text-gray-400 hover:text-charcoal-900 hover:bg-mustard-50 transition-colors"
+                  >
+                    <Copy size={14} />
+                  </button>
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  {regenResult.smsSent ? 'Sent to their phone via SMS.' : 'SMS not sent — share this with them directly.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setRegenResult(null)}
+                  className="text-[11px] text-gray-400 hover:text-gray-700 underline"
+                >
+                  Done
+                </button>
+              </div>
+            ) : isRegenConfirming ? (
+              <div className="p-3.5 bg-rose-50 rounded-xl border border-rose-200 space-y-2 text-right max-w-[220px]">
+                <p className="text-[11px] text-rose-700 leading-relaxed">
+                  This invalidates their current code — they'll need the new one to sign in. Continue?
+                </p>
+                {regenError && <p className="text-[11px] text-rose-700 font-semibold">{regenError}</p>}
+                <div className="flex justify-end gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setIsRegenConfirming(false)}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-medium text-gray-600 hover:bg-white transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleRegenerateCode}
+                    disabled={isRegenerating}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-charcoal-950 text-white hover:bg-charcoal-800 transition-colors flex items-center gap-1 disabled:opacity-60"
+                  >
+                    {isRegenerating ? <Loader2 size={12} className="animate-spin" /> : <KeyRound size={12} />}
+                    <span>Confirm</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsRegenConfirming(true)}
+                className="px-3.5 py-2 text-xs font-medium text-gray-700 hover:text-charcoal-900 hover:bg-mustard-50 rounded-xl border border-gray-200/80 flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <KeyRound size={14} className="text-mustard-700" />
+                <span>Regenerate Access Code</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Measurements Section */}
